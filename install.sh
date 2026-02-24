@@ -262,6 +262,26 @@ log "=== Installer v${VERSION} started | arch=$ARCH | client=$CLIENT_NAME | dry=
 # Load API secrets before any steps
 load_secrets
 
+#-------------------------------------------------------------------------------
+# Cache sudo credentials (needed by Homebrew, system settings, etc.)
+#-------------------------------------------------------------------------------
+if ! $DRY_RUN; then
+  echo -e "${C}  Some install steps require administrator access.${NC}"
+  echo -e "${C}  You may be prompted for your password once.${NC}"
+  echo ""
+  if ! sudo -v 2>/dev/null; then
+    echo -e "${R}Error: This installer requires sudo access.${NC}"
+    echo -e "  Make sure this user is an Administrator, then try again."
+    exit 1
+  fi
+  # Keep sudo alive in the background for the duration of the install
+  (while true; do sudo -n true; sleep 50; kill -0 $$ 2>/dev/null || exit; done) &
+  SUDO_KEEPALIVE_PID=$!
+  trap 'kill $SUDO_KEEPALIVE_PID 2>/dev/null' EXIT
+  ok "sudo credentials cached"
+  echo ""
+fi
+
 #===============================================================================
 # STEP 1: macOS system settings (pre-flight)
 #===============================================================================
@@ -293,40 +313,30 @@ if $DRY_RUN; then
   dry "Auto-restart after power failure: sudo pmset -a autorestart 1"
   SUCCESSES+=("macOS system settings (dry)")
 else
-  if sudo -n true 2>/dev/null; then
-    # Enable Remote Login (SSH)
-    sudo systemsetup -setremotelogin on 2>/dev/null \
-      && ok "Remote Login (SSH) enabled" \
-      || warn "Could not enable Remote Login — enable manually in System Settings > General > Sharing"
+  # Enable Remote Login (SSH)
+  sudo systemsetup -setremotelogin on 2>/dev/null \
+    && ok "Remote Login (SSH) enabled" \
+    || warn "Could not enable Remote Login — enable manually in System Settings > General > Sharing"
 
-    # Enable Screen Sharing
-    sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.screensharing.plist 2>/dev/null \
-      && ok "Screen Sharing enabled" \
-      || warn "Could not enable Screen Sharing — enable manually in System Settings > General > Sharing"
+  # Enable Screen Sharing
+  sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.screensharing.plist 2>/dev/null \
+    && ok "Screen Sharing enabled" \
+    || warn "Could not enable Screen Sharing — enable manually in System Settings > General > Sharing"
 
-    # Power management — prevent sleep
-    sudo pmset -a sleep 0 displaysleep 0 disksleep 0 2>/dev/null \
-      && ok "Power management: sleep disabled" \
-      || warn "Could not set power management — run manually: sudo pmset -a sleep 0 displaysleep 0 disksleep 0"
+  # Power management — prevent sleep
+  sudo pmset -a sleep 0 displaysleep 0 disksleep 0 2>/dev/null \
+    && ok "Power management: sleep disabled" \
+    || warn "Could not set power management — run manually: sudo pmset -a sleep 0 displaysleep 0 disksleep 0"
 
-    # Wake on LAN
-    sudo pmset -a womp 1 2>/dev/null \
-      && ok "Wake on LAN enabled" \
-      || warn "Could not enable Wake on LAN"
+  # Wake on LAN
+  sudo pmset -a womp 1 2>/dev/null \
+    && ok "Wake on LAN enabled" \
+    || warn "Could not enable Wake on LAN"
 
-    # Auto-restart after power failure
-    sudo pmset -a autorestart 1 2>/dev/null \
-      && ok "Auto-restart after power failure enabled" \
-      || warn "Could not enable auto-restart after power failure"
-  else
-    warn "sudo requires a password — skipping system settings"
-    info "Run these commands manually with sudo:"
-    info "  sudo systemsetup -setremotelogin on"
-    info "  sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.screensharing.plist"
-    info "  sudo pmset -a sleep 0 displaysleep 0 disksleep 0"
-    info "  sudo pmset -a womp 1"
-    info "  sudo pmset -a autorestart 1"
-  fi
+  # Auto-restart after power failure
+  sudo pmset -a autorestart 1 2>/dev/null \
+    && ok "Auto-restart after power failure enabled" \
+    || warn "Could not enable auto-restart after power failure"
 fi
 
 # --- Deploy SSH key (allows GitHub Actions to push updates via Tailscale) ---
