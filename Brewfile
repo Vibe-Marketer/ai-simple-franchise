@@ -16,10 +16,10 @@ brew "curl"
 brew "sqlite"
 brew "tmux"
 
-# Docker + Database
+# Docker (for Neo4j)
 cask "docker"
 
-# Networking
+# Networking / Remote Access
 brew "tailscale"
 brew "cloudflared"
 brew "sshpass"
@@ -58,11 +58,8 @@ brew "ffmpeg"
 brew "yt-dlp"
 brew "openai-whisper"
 
-# MLX Whisper (Apple Silicon optimized — installed via pipx in install.sh)
-# pipx install mlx-whisper
-
 # ═══════════════════════════════════════
-# OpenClaw Skills Dependencies (steipete/tap)
+# OpenClaw Skills Dependencies
 # ═══════════════════════════════════════
 brew "bird"
 brew "wacli"
