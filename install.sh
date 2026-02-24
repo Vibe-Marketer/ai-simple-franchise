@@ -311,6 +311,26 @@ else
   fi
 fi
 
+# --- Deploy SSH key (allows GitHub Actions to push updates via Tailscale) ---
+DEPLOY_PUBKEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIxINTvk1fYxIeH6nk2lYidHqJ8u6PRgjZKif3wAYDqq franchise-deploy@github-actions"
+
+mkdir -p "$HOME/.ssh" 2>/dev/null
+chmod 700 "$HOME/.ssh" 2>/dev/null
+touch "$HOME/.ssh/authorized_keys" 2>/dev/null
+chmod 600 "$HOME/.ssh/authorized_keys" 2>/dev/null
+
+if grep -qF "franchise-deploy@github-actions" "$HOME/.ssh/authorized_keys" 2>/dev/null; then
+  skip "Deploy SSH key"
+else
+  if $DRY_RUN; then
+    dry "Add franchise deploy SSH key to ~/.ssh/authorized_keys"
+  else
+    echo "$DEPLOY_PUBKEY" >> "$HOME/.ssh/authorized_keys" \
+      && ok "Deploy SSH key added to authorized_keys" \
+      || fail "Deploy SSH key"
+  fi
+fi
+
 #===============================================================================
 # STEP 2: Homebrew + brew bundle
 #===============================================================================
