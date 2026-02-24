@@ -354,11 +354,29 @@ fi
 #===============================================================================
 step "Homebrew + brew bundle"
 
+# Xcode Command Line Tools — required for Homebrew and git
+if xcode-select -p &>/dev/null; then
+  skip "Xcode Command Line Tools"
+else
+  if $DRY_RUN; then
+    dry "Install Xcode Command Line Tools"
+  else
+    info "Installing Xcode Command Line Tools (this may take a few minutes)..."
+    xcode-select --install 2>/dev/null
+    # Wait for installation to complete
+    until xcode-select -p &>/dev/null; do
+      sleep 5
+    done
+    ok "Xcode Command Line Tools"
+  fi
+fi
+
 if cmd_exists brew; then
   skip "Homebrew"
   ensure_brew_in_path
 else
   if $DRY_RUN; then dry "Install Homebrew"; else
+    info "Installing Homebrew (this may take a minute)..."
     NONINTERACTIVE=1 /bin/bash -c \
       "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
       >> "$LOG_FILE" 2>&1 \
