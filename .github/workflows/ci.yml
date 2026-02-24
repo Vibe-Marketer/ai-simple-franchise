@@ -67,6 +67,8 @@ jobs:
             "scripts/restore.sh"
             "scripts/update-check.sh"
             "scripts/launch-with-secrets.sh"
+            "scripts/update.sh"
+            "config/clients.json"
             "workspace/AGENTS.md"
             "workspace/BOOTSTRAP.md"
             "workspace/BUSINESS.md"

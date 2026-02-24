@@ -1,0 +1,12 @@
+{
+  "clients": [
+    {
+      "name": "acme-corp",
+      "hostname": "acme-corp",
+      "tailscale_ip": "",
+      "ssh_user": "admin",
+      "installer_path": "~/ai-simple-franchise",
+      "enabled": true
+    }
+  ]
+}

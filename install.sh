@@ -1236,7 +1236,7 @@ step "Install utility scripts"
 SCRIPTS_DEST="$OPENCLAW_DIR/scripts"
 mkdir -p "$SCRIPTS_DEST" 2>/dev/null
 
-UTIL_SCRIPTS=("backup.sh" "restore.sh" "update-check.sh")
+UTIL_SCRIPTS=("backup.sh" "restore.sh" "update-check.sh" "update.sh")
 
 for script_name in "${UTIL_SCRIPTS[@]}"; do
   script_src="$INSTALLER_DIR/scripts/$script_name"

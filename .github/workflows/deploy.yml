@@ -1,0 +1,398 @@
+#===============================================================================
+# OpenClaw Franchise — Remote Deploy Workflow
+#
+# SSHes into client machines over Tailscale and runs updates.
+# Uses a two-job approach: prepare (build matrix from clients.json) + deploy.
+#
+# Required GitHub Secrets:
+#   TAILSCALE_OAUTH_CLIENT_ID — Tailscale OAuth client ID for ephemeral nodes
+#   TAILSCALE_OAUTH_SECRET    — Tailscale OAuth secret
+#   DEPLOY_SSH_KEY            — Private SSH key authorized on all client machines
+#
+# Client registry: config/clients.json
+#===============================================================================
+
+name: Deploy to Clients
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target client — "all" or a specific client name from clients.json'
+        required: true
+        default: 'all'
+        type: string
+      dry_run:
+        description: 'Dry run — preview changes without applying (safety first)'
+        required: true
+        default: true
+        type: boolean
+      force:
+        description: 'Force update — skip version checks and apply regardless'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  # ===========================================================================
+  # Job 1: Prepare — Read clients.json and build the deploy matrix
+  # ===========================================================================
+  prepare:
+    name: Build client matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build-matrix.outputs.matrix }}
+      client_count: ${{ steps.build-matrix.outputs.client_count }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build matrix from clients.json
+        id: build-matrix
+        run: |
+          # Validate clients.json exists and is valid JSON
+          if [ ! -f config/clients.json ]; then
+            echo "::error::config/clients.json not found"
+            exit 1
+          fi
+
+          if ! jq empty config/clients.json 2>/dev/null; then
+            echo "::error::config/clients.json is not valid JSON"
+            exit 1
+          fi
+
+          TARGET="${{ github.event.inputs.target }}"
+
+          if [ "$TARGET" = "all" ]; then
+            # Select all enabled clients
+            MATRIX=$(jq -c '{include: [.clients[] | select(.enabled == true)]}' config/clients.json)
+          else
+            # Filter to a specific client by name
+            MATRIX=$(jq -c --arg name "$TARGET" '{include: [.clients[] | select(.name == $name and .enabled == true)]}' config/clients.json)
+          fi
+
+          CLIENT_COUNT=$(echo "$MATRIX" | jq '.include | length')
+
+          if [ "$CLIENT_COUNT" -eq 0 ]; then
+            echo "::error::No matching clients found for target '$TARGET'. Check clients.json and ensure the client exists and is enabled."
+            exit 1
+          fi
+
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          echo "client_count=$CLIENT_COUNT" >> "$GITHUB_OUTPUT"
+
+          echo "### Deploy Target Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Target**: $TARGET" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Matched clients**: $CLIENT_COUNT" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Dry run**: ${{ github.event.inputs.dry_run }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Force**: ${{ github.event.inputs.force }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Clients:**" >> "$GITHUB_STEP_SUMMARY"
+          echo "$MATRIX" | jq -r '.include[] | "- \(.name) (\(.hostname) / \(.ssh_user))"' >> "$GITHUB_STEP_SUMMARY"
+
+  # ===========================================================================
+  # Job 2: Deploy — SSH into each client over Tailscale and run the update
+  # ===========================================================================
+  deploy:
+    name: Deploy to ${{ matrix.name }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    # One failure should not cancel other deploys
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # Connect to Tailscale network
+      # -----------------------------------------------------------------------
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Wait for Tailscale connection
+        run: |
+          echo "Waiting for Tailscale to establish connection..."
+          for i in $(seq 1 30); do
+            if tailscale status &>/dev/null; then
+              echo "Tailscale connected after ${i}s"
+              tailscale status
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "::error::Tailscale failed to connect within 30 seconds"
+              exit 1
+            fi
+            sleep 1
+          done
+
+      # -----------------------------------------------------------------------
+      # Resolve target host — prefer Tailscale IP if set, fall back to hostname
+      # -----------------------------------------------------------------------
+      - name: Resolve target host
+        id: resolve
+        run: |
+          TAILSCALE_IP="${{ matrix.tailscale_ip }}"
+          HOSTNAME="${{ matrix.hostname }}"
+
+          if [ -n "$TAILSCALE_IP" ]; then
+            TARGET_HOST="$TAILSCALE_IP"
+            echo "Using Tailscale IP: $TARGET_HOST"
+          else
+            TARGET_HOST="$HOSTNAME"
+            echo "Using hostname: $TARGET_HOST (will resolve via Tailscale MagicDNS)"
+          fi
+
+          echo "target_host=$TARGET_HOST" >> "$GITHUB_OUTPUT"
+
+      # -----------------------------------------------------------------------
+      # Set up SSH key
+      # -----------------------------------------------------------------------
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Disable strict host key checking for Tailscale hosts
+          # (they are authenticated by Tailscale's WireGuard layer)
+          cat >> ~/.ssh/config <<'SSHEOF'
+          Host *
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+            LogLevel ERROR
+            ConnectTimeout 30
+            ServerAliveInterval 15
+            ServerAliveCountMax 3
+          SSHEOF
+          chmod 600 ~/.ssh/config
+
+      # -----------------------------------------------------------------------
+      # Print deploy plan (always, before execution)
+      # -----------------------------------------------------------------------
+      - name: Print deploy plan
+        run: |
+          echo "============================================================"
+          echo "  DEPLOY PLAN"
+          echo "============================================================"
+          echo "  Client:        ${{ matrix.name }}"
+          echo "  Host:          ${{ steps.resolve.outputs.target_host }}"
+          echo "  SSH User:      ${{ matrix.ssh_user }}"
+          echo "  Installer:     ${{ matrix.installer_path }}"
+          echo "  Dry Run:       ${{ github.event.inputs.dry_run }}"
+          echo "  Force:         ${{ github.event.inputs.force }}"
+          echo "  Triggered by:  ${{ github.actor }}"
+          echo "  Ref:           ${{ github.ref_name }}"
+          echo "  Commit:        ${{ github.sha }}"
+          echo "============================================================"
+
+      # -----------------------------------------------------------------------
+      # SSH in and run the update
+      # -----------------------------------------------------------------------
+      - name: Deploy to ${{ matrix.name }}
+        id: deploy
+        run: |
+          TARGET_HOST="${{ steps.resolve.outputs.target_host }}"
+          SSH_USER="${{ matrix.ssh_user }}"
+          INSTALLER_PATH="${{ matrix.installer_path }}"
+
+          # Build update flags
+          UPDATE_FLAGS=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            UPDATE_FLAGS="$UPDATE_FLAGS --dry-run"
+          fi
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            UPDATE_FLAGS="$UPDATE_FLAGS --force"
+          fi
+
+          echo "Connecting to $SSH_USER@$TARGET_HOST..."
+          echo ""
+
+          # Run the deploy commands over SSH
+          # Capture both stdout and stderr, and preserve the exit code
+          set +e
+          OUTPUT=$(ssh -i ~/.ssh/deploy_key "$SSH_USER@$TARGET_HOST" bash -l <<REMOTE_EOF 2>&1
+            set -euo pipefail
+
+            echo "--- Remote host: \$(hostname) ---"
+            echo "--- Date: \$(date) ---"
+            echo "--- User: \$(whoami) ---"
+            echo ""
+
+            # Navigate to the franchise installer directory
+            cd $INSTALLER_PATH || {
+              echo "ERROR: Could not cd to $INSTALLER_PATH"
+              exit 1
+            }
+
+            echo "--- Current branch: \$(git branch --show-current 2>/dev/null || echo 'unknown') ---"
+            echo "--- Current commit: \$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown') ---"
+            echo ""
+
+            # Pull latest from main
+            echo ">>> git pull origin main"
+            git pull origin main
+            echo ""
+
+            echo "--- Updated commit: \$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown') ---"
+            echo ""
+
+            # Run the update script
+            if [ -f scripts/update.sh ]; then
+              echo ">>> ./scripts/update.sh $UPDATE_FLAGS"
+              ./scripts/update.sh $UPDATE_FLAGS
+            else
+              echo "WARNING: scripts/update.sh not found, skipping update script"
+              echo "Git pull completed successfully — manual update may be needed"
+            fi
+          REMOTE_EOF
+          )
+          EXIT_CODE=$?
+          set -e
+
+          # Display the full output
+          echo "$OUTPUT"
+          echo ""
+
+          # Record result
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "result=success" >> "$GITHUB_OUTPUT"
+            echo "### ${{ matrix.name }}: SUCCESS" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "result=failure" >> "$GITHUB_OUTPUT"
+            echo "### ${{ matrix.name }}: FAILED (exit code $EXIT_CODE)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "$OUTPUT" | tail -20 >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+          exit $EXIT_CODE
+
+      # -----------------------------------------------------------------------
+      # Cleanup SSH key (always, even on failure)
+      # -----------------------------------------------------------------------
+      - name: Cleanup SSH key
+        if: always()
+        run: |
+          rm -f ~/.ssh/deploy_key
+          rm -f ~/.ssh/config
+
+  # ===========================================================================
+  # Job 3: Summary — Report on overall deploy results
+  # ===========================================================================
+  summary:
+    name: Deploy summary
+    needs: [prepare, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Generate deploy summary
+        run: |
+          echo "### Franchise Deploy Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Parameter | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-----------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Target | ${{ github.event.inputs.target }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Dry Run | ${{ github.event.inputs.dry_run }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Force | ${{ github.event.inputs.force }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Client count | ${{ needs.prepare.outputs.client_count }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Overall status | ${{ needs.deploy.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          DEPLOY_RESULT="${{ needs.deploy.result }}"
+
+          if [ "$DEPLOY_RESULT" = "success" ]; then
+            echo "All client deploys completed successfully." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$DEPLOY_RESULT" = "failure" ]; then
+            echo "**One or more client deploys failed.** Check individual job logs above for details." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Deploy status: $DEPLOY_RESULT" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+# ==============================================================================
+# ALTERNATIVE: Notification-only workflow (uncomment to use instead of auto-deploy)
+#
+# This version just checks for updates and notifies Andrew, rather than
+# automatically deploying. Useful if you want manual control over each deploy.
+# ==============================================================================
+#
+#   notify-only:
+#     name: Check & notify (no deploy)
+#     runs-on: ubuntu-latest
+#     strategy:
+#       fail-fast: false
+#       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+#     steps:
+#       - uses: actions/checkout@v4
+#
+#       - name: Connect to Tailscale
+#         uses: tailscale/github-action@v2
+#         with:
+#           oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+#           oauth-secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
+#           tags: tag:ci
+#
+#       - name: Configure SSH
+#         run: |
+#           mkdir -p ~/.ssh
+#           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+#           chmod 600 ~/.ssh/deploy_key
+#           cat >> ~/.ssh/config <<'SSHEOF'
+#           Host *
+#             StrictHostKeyChecking no
+#             UserKnownHostsFile /dev/null
+#             LogLevel ERROR
+#           SSHEOF
+#
+#       - name: Check for updates on ${{ matrix.name }}
+#         id: check
+#         run: |
+#           TARGET_HOST="${{ matrix.tailscale_ip || matrix.hostname }}"
+#           SSH_USER="${{ matrix.ssh_user }}"
+#
+#           RESULT=$(ssh -i ~/.ssh/deploy_key "$SSH_USER@$TARGET_HOST" bash -l <<'REMOTE_EOF' 2>&1
+#             cd ~/ai-simple-franchise || exit 1
+#             ./scripts/update-check.sh --json
+#           REMOTE_EOF
+#           )
+#           echo "check_output=$RESULT" >> "$GITHUB_OUTPUT"
+#           echo "$RESULT"
+#
+#       # Option A: Webhook notification (configure NOTIFY_WEBHOOK_URL secret)
+#       - name: Send webhook notification
+#         if: contains(steps.check.outputs.check_output, '"has_updates": true')
+#         run: |
+#           curl -sf -X POST "${{ secrets.NOTIFY_WEBHOOK_URL }}" \
+#             -H "Content-Type: application/json" \
+#             -d '{
+#               "client": "${{ matrix.name }}",
+#               "updates_available": true,
+#               "output": ${{ toJson(steps.check.outputs.check_output) }},
+#               "workflow_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+#             }' || echo "Webhook notification failed (non-fatal)"
+#
+#       # Option B: GitHub Issue notification
+#       # - name: Create GitHub issue for updates
+#       #   if: contains(steps.check.outputs.check_output, '"has_updates": true')
+#       #   uses: actions/github-script@v7
+#       #   with:
+#       #     script: |
+#       #       await github.rest.issues.create({
+#       #         owner: context.repo.owner,
+#       #         repo: context.repo.repo,
+#       #         title: `Updates available for ${{ matrix.name }}`,
+#       #         body: `Update check found pending updates.\n\n\`\`\`json\n${process.env.CHECK_OUTPUT}\n\`\`\`\n\n[Run deploy workflow](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/workflows/deploy.yml)`,
+#       #         labels: ['deploy', 'updates']
+#       #       });
+#
+#       - name: Cleanup
+#         if: always()
+#         run: rm -f ~/.ssh/deploy_key ~/.ssh/config
