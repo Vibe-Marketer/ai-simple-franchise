@@ -1,0 +1,194 @@
+name: Franchise Installer CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate installer
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bash syntax check — install.sh
+        run: bash -n install.sh
+
+      - name: Bash syntax check — all scripts
+        run: |
+          failed=0
+          for f in $(find . -name '*.sh' -type f); do
+            if ! bash -n "$f" 2>/dev/null; then
+              echo "FAIL: $f"
+              bash -n "$f"
+              failed=1
+            else
+              echo "OK: $f"
+            fi
+          done
+          exit $failed
+
+      - name: Verify all template placeholders are valid
+        run: |
+          failed=0
+          for f in $(find . -name '*.template' -o -name '*.template.json'); do
+            # Check for common placeholder mistakes (unclosed, empty)
+            if grep -qP '\{\{[^}]*$' "$f" 2>/dev/null; then
+              echo "FAIL: $f has unclosed placeholder"
+              failed=1
+            fi
+            if grep -qP '\{\{\}\}' "$f" 2>/dev/null; then
+              echo "FAIL: $f has empty placeholder {{}}"
+              failed=1
+            fi
+            echo "OK: $f"
+          done
+          exit $failed
+
+      - name: Verify required files exist
+        run: |
+          required_files=(
+            "install.sh"
+            "healthcheck.sh"
+            "Brewfile"
+            "config/openclaw.json.template"
+            "config/env.template"
+            "config/op-env.template"
+            "config/cloudflared.yml.template"
+            "config/cron-jobs.template.json"
+            "config/entity-map.template.json"
+            "docker/neo4j-compose.yml"
+            "launchagents/ai.openclaw.node.plist"
+            "launchagents/ai.openclaw.gateway.plist"
+            "launchagents/com.cloudflare.cloudflared.plist"
+            "scripts/backup.sh"
+            "scripts/restore.sh"
+            "scripts/update-check.sh"
+            "scripts/launch-with-secrets.sh"
+            "workspace/AGENTS.md"
+            "workspace/BOOTSTRAP.md"
+            "workspace/BUSINESS.md"
+            "workspace/HEARTBEAT.md"
+            "workspace/IDENTITY.md"
+            "workspace/SOUL.md"
+            "workspace/TOOLS.md"
+            "workspace/USER.md"
+            "workspace/scripts/self-heal.sh"
+            "workspaces/bizdev/AGENTS.md"
+            "workspaces/content/AGENTS.md"
+            "workspaces/dev/AGENTS.md"
+            "workspaces/outreach/AGENTS.md"
+            "workspaces/quick/AGENTS.md"
+            "skills/autonomous-brain/SKILL.md"
+            "skills/calendly/SKILL.md"
+            "skills/dev-gsd/SKILL.md"
+            "skills/sales-outreach/SKILL.md"
+            "skills/viral-content/SKILL.md"
+            "skills/wacli/SKILL.md"
+          )
+          failed=0
+          for f in "${required_files[@]}"; do
+            if [ -f "$f" ]; then
+              echo "OK: $f"
+            else
+              echo "MISSING: $f"
+              failed=1
+            fi
+          done
+          exit $failed
+
+      - name: Verify scripts are executable
+        run: |
+          failed=0
+          for f in install.sh healthcheck.sh scripts/*.sh workspace/scripts/*.sh patches/*.sh; do
+            [ -f "$f" ] || continue
+            if [ -x "$f" ]; then
+              echo "OK: $f"
+            else
+              echo "FAIL: $f is not executable"
+              failed=1
+            fi
+          done
+          exit $failed
+
+      - name: Verify step count matches TOTAL_STEPS
+        run: |
+          declared=$(grep '^TOTAL_STEPS=' install.sh | head -1 | cut -d= -f2)
+          actual=$(grep -c '^step ' install.sh)
+          echo "Declared: $declared, Actual: $actual"
+          if [ "$declared" != "$actual" ]; then
+            echo "FAIL: TOTAL_STEPS=$declared but found $actual step() calls"
+            exit 1
+          fi
+          echo "OK: $actual steps match"
+
+      - name: Verify step numbering is sequential
+        run: |
+          grep '^# STEP' install.sh | while IFS= read -r line; do
+            echo "$line"
+          done
+          expected=1
+          while IFS= read -r line; do
+            num=$(echo "$line" | grep -oP 'STEP \K\d+')
+            if [ "$num" != "$expected" ]; then
+              echo "FAIL: Expected STEP $expected, got STEP $num"
+              exit 1
+            fi
+            expected=$((expected + 1))
+          done < <(grep '^# STEP' install.sh)
+          echo "OK: All steps sequential (1-$((expected - 1)))"
+
+      - name: Verify openclaw.json.template is valid JSON
+        run: |
+          if jq empty config/openclaw.json.template 2>/dev/null; then
+            echo "OK: openclaw.json.template is valid JSON"
+          else
+            echo "FAIL: openclaw.json.template is not valid JSON"
+            jq empty config/openclaw.json.template
+            exit 1
+          fi
+
+      - name: Verify cron-jobs.template.json is valid JSON
+        run: |
+          if jq empty config/cron-jobs.template.json 2>/dev/null; then
+            echo "OK: cron-jobs.template.json is valid JSON"
+          else
+            echo "FAIL: cron-jobs.template.json is not valid JSON"
+            jq empty config/cron-jobs.template.json
+            exit 1
+          fi
+
+      - name: Verify Brewfile syntax
+        run: |
+          # Check for common Brewfile issues
+          failed=0
+          while IFS= read -r line; do
+            # Skip blank lines and comments
+            [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+            # Must start with brew, cask, tap, or mas
+            if ! echo "$line" | grep -qE '^(brew|cask|tap|mas) '; then
+              echo "FAIL: Invalid Brewfile line: $line"
+              failed=1
+            fi
+          done < Brewfile
+          if [ $failed -eq 0 ]; then
+            echo "OK: Brewfile syntax valid"
+          fi
+          exit $failed
+
+      - name: Dry-run installer
+        run: |
+          ./install.sh --dry-run --client-name ci-test 2>&1 | tee /tmp/dry-run.log
+          # Check exit code
+          exit_code=${PIPESTATUS[0]}
+          echo ""
+          echo "Exit code: $exit_code"
+          # Extract summary line
+          tail -5 /tmp/dry-run.log
+          if [ $exit_code -ne 0 ]; then
+            echo "FAIL: Dry-run exited with $exit_code"
+            exit 1
+          fi
+          echo "OK: Dry-run passed"
