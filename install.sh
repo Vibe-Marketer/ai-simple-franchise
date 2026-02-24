@@ -885,35 +885,26 @@ else
   fi
 fi
 
-# Apply mem0 SDK patches
+# Apply mem0 SDK patches (5 patches to both index.js and index.mjs)
 info "Applying mem0ai SDK patches..."
 MEM0_DIST="$MEM0_EXT_DIR/node_modules/mem0ai/dist/oss"
+PATCH_SCRIPT="$INSTALLER_DIR/patches/apply-mem0-patches.sh"
 if [ -d "$MEM0_DIST" ]; then
-  PATCH_DIR="$INSTALLER_DIR/patches"
-  if [ -d "$PATCH_DIR" ] && ls "$PATCH_DIR"/mem0-*.patch &>/dev/null 2>&1; then
+  if [ -f "$PATCH_SCRIPT" ]; then
     if $DRY_RUN; then
-      dry "Apply mem0 SDK patches from $PATCH_DIR"
+      dry "Apply mem0 SDK patches via $PATCH_SCRIPT"
     else
-      local_patch_ok=true
-      for pf in "$PATCH_DIR"/mem0-*.patch; do
-        patch -d "$MEM0_EXT_DIR" -p1 < "$pf" >> "$LOG_FILE" 2>&1 || local_patch_ok=false
-      done
-      if $local_patch_ok; then
-        ok "mem0ai SDK patches applied"
+      chmod +x "$PATCH_SCRIPT"
+      if bash "$PATCH_SCRIPT" "$MEM0_DIST" >> "$LOG_FILE" 2>&1; then
+        ok "mem0ai SDK patches applied (5 patches × 2 files)"
       else
-        warn "Some mem0 patches failed — check log. Manual patching may be required."
-        info "See: ~/Desktop/rag-reality/06-OPENCLAW-MEM0-INSTALLATION-GUIDE.md"
+        warn "Some mem0 patches failed — check log"
+        info "Run manually: bash $PATCH_SCRIPT"
       fi
     fi
   else
-    warn "No mem0 patch files found in $PATCH_DIR/"
-    info "Patches must be applied manually. Required patches:"
-    info "  1. Add 'Return your response as json.' to _retrieveNodesFromData prompt"
-    info "  2. Same for DELETE_RELATIONS_SYSTEM_PROMPT"
-    info "  3. OpenAILLM.generateResponse — only pass response_format when tools NOT provided"
-    info "  4. OpenAIEmbedder — accept baseURL config, pass dimensions parameter"
-    info "  5. ConfigManager.mergeConfig — preserve baseURL in embedder config"
-    info "Patch both: index.js (CJS) and index.mjs (ESM) in node_modules/mem0ai/dist/oss/"
+    warn "Patch script not found: $PATCH_SCRIPT"
+    info "Patches must be applied manually. Run: bash patches/apply-mem0-patches.sh"
   fi
 else
   if [ -d "$MEM0_EXT_DIR" ]; then
@@ -980,50 +971,31 @@ fi
 #===============================================================================
 step "OpenClaw BUSINESS.md injection patches"
 
-warn "BUSINESS.md injection requires patching OpenClaw dist files."
-info "This patch adds BUSINESS.md to loadWorkspaceBootstrapFiles() in agent-scope-*.js"
-info ""
-info "Location: \$(dirname \$(which openclaw))/../lib/node_modules/openclaw/dist/agent-scope-*.js"
-info ""
-info "Manual steps:"
-info "  1. Find the dist files:  ls \$(npm root -g)/openclaw/dist/agent-scope-*.js"
-info "  2. In each file, locate the loadWorkspaceBootstrapFiles() function"
-info "  3. Find the entries array containing 'BOOTSTRAP.md'"
-info "  4. Add 'BUSINESS.md' as the next entry after 'BOOTSTRAP.md'"
-info ""
-info "Alternatively, if patch files are provided:"
+BUSINESS_PATCH_SCRIPT="$INSTALLER_DIR/patches/apply-openclaw-patches.sh"
 
-PATCH_DIR="$INSTALLER_DIR/patches"
-if [ -d "$PATCH_DIR" ] && ls "$PATCH_DIR"/business-md-*.patch &>/dev/null 2>&1; then
-  OPENCLAW_DIST=""
-  if cmd_exists openclaw; then
-    OPENCLAW_DIST="$(dirname "$(dirname "$(which openclaw)")")/lib/node_modules/openclaw/dist"
-    # Fallback: try nvm path
-    if [ ! -d "$OPENCLAW_DIST" ]; then
-      OPENCLAW_DIST="$HOME/.nvm/versions/node/v${NODE_TARGET}/lib/node_modules/openclaw/dist"
-    fi
-  fi
-  if [ -d "$OPENCLAW_DIST" ]; then
+if cmd_exists openclaw; then
+  if [ -f "$BUSINESS_PATCH_SCRIPT" ]; then
     if $DRY_RUN; then
-      dry "Apply BUSINESS.md patches to $OPENCLAW_DIST"
+      dry "Apply BUSINESS.md injection via $BUSINESS_PATCH_SCRIPT"
     else
-      local_patch_ok=true
-      for pf in "$PATCH_DIR"/business-md-*.patch; do
-        patch -d "$OPENCLAW_DIST/.." -p1 < "$pf" >> "$LOG_FILE" 2>&1 || local_patch_ok=false
-      done
-      if $local_patch_ok; then
+      chmod +x "$BUSINESS_PATCH_SCRIPT"
+      if bash "$BUSINESS_PATCH_SCRIPT" >> "$LOG_FILE" 2>&1; then
         ok "BUSINESS.md injection patches applied"
       else
-        warn "Some BUSINESS.md patches failed — apply manually (see instructions above)"
+        warn "BUSINESS.md patches had issues — check log"
+        info "Run manually: bash $BUSINESS_PATCH_SCRIPT"
       fi
     fi
   else
-    warn "OpenClaw dist directory not found — install openclaw first, then re-run this step"
+    warn "Patch script not found: $BUSINESS_PATCH_SCRIPT"
+    info "This patch adds BUSINESS.md to loadWorkspaceBootstrapFiles() in agent-scope-*.js"
+    info "Manual: find agent-scope-*.js files in openclaw dist, add BUSINESS.md after BOOTSTRAP.md"
+    SKIPPED+=("BUSINESS.md patches (script missing)")
   fi
 else
-  warn "No BUSINESS.md patch files found in $PATCH_DIR/"
-  info "This step must be completed manually after installation."
-  SKIPPED+=("BUSINESS.md patches (manual)")
+  warn "OpenClaw not installed yet — BUSINESS.md patches deferred"
+  info "After installing openclaw, run: bash $BUSINESS_PATCH_SCRIPT"
+  SKIPPED+=("BUSINESS.md patches (openclaw not installed)")
 fi
 
 #===============================================================================
@@ -1749,7 +1721,7 @@ if [ ${#FAILURES[@]} -eq 0 ]; then
   echo -e "  2. Connect Composio:   ${C}composio add gmail --entity-id '${CLIENT_NAME}'${NC}"
   echo -e "  3. Tailscale auth:     ${C}open -a Tailscale && tailscale up --hostname=${CLIENT_NAME}${NC}"
   echo -e "  4. Cloudflare tunnel:  ${C}cloudflared tunnel login && cloudflared tunnel create ${CLIENT_NAME}${NC}"
-  echo -e "  5. Apply BUSINESS.md:  See Step 13 output above (manual patch)"
+  echo -e "  5. Verify patches:     ${C}bash $INSTALLER_DIR/patches/verify-patches.sh${NC}"
   echo -e "  6. Start the agent:    ${C}openclaw start${NC}"
   echo ""
 fi
