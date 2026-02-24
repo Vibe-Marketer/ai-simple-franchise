@@ -2,6 +2,12 @@
 # Run: brew bundle --file=Brewfile
 
 # ═══════════════════════════════════════
+# Taps (custom formula repositories)
+# ═══════════════════════════════════════
+tap "steipete/tap"
+tap "antoniorodr/memo"
+
+# ═══════════════════════════════════════
 # Core Infrastructure
 # ═══════════════════════════════════════
 brew "git"
@@ -56,13 +62,13 @@ brew "openai-whisper"
 # pipx install mlx-whisper
 
 # ═══════════════════════════════════════
-# OpenClaw Skills Dependencies
+# OpenClaw Skills Dependencies (steipete/tap)
 # ═══════════════════════════════════════
 brew "bird"
 brew "wacli"
 brew "himalaya"
 brew "imsg"
-brew "memo"
+brew "antoniorodr/memo/memo"
 brew "remindctl"
 brew "peekaboo"
 brew "gogcli"

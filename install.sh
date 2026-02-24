@@ -399,9 +399,11 @@ fi
 if cmd_exists brew; then
   if [ -f "$INSTALLER_DIR/Brewfile" ]; then
     if $DRY_RUN; then
-      dry "brew bundle --file=$INSTALLER_DIR/Brewfile"
+      dry "brew update && brew bundle --file=$INSTALLER_DIR/Brewfile"
       SUCCESSES+=("Brew bundle (dry)")
     else
+      info "Updating Homebrew formula index..."
+      brew update >> "$LOG_FILE" 2>&1 || warn "brew update had issues — continuing anyway"
       info "Running brew bundle (this may take a while on a fresh machine)..."
       if brew bundle --file="$INSTALLER_DIR/Brewfile" >> "$LOG_FILE" 2>&1; then
         ok "Brew bundle — all packages installed"
