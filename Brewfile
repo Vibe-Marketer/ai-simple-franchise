@@ -59,9 +59,9 @@ brew "yt-dlp"
 brew "openai-whisper"
 
 # ═══════════════════════════════════════
-# OpenClaw Skills Dependencies (steipete/tap)
+# OpenClaw Skills Dependencies
 # ═══════════════════════════════════════
-brew "steipete/tap/bird"
+# bird — deleted from steipete/tap; installed separately via cargo/binary in Step 4
 brew "steipete/tap/wacli"
 brew "himalaya"
 brew "steipete/tap/imsg"

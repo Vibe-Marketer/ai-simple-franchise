@@ -423,6 +423,32 @@ else
   warn "Homebrew not available — skipping brew packages"
 fi
 
+# Install bird CLI (X/Twitter) — removed from steipete/tap, direct binary download
+if cmd_exists bird; then
+  skip "bird CLI"
+else
+  if $DRY_RUN; then
+    dry "Install bird CLI from GitHub releases"
+  else
+    info "Installing bird CLI (X/Twitter)..."
+    BIRD_VERSION="0.8.0"
+    BIRD_URL="https://github.com/steipete/bird/releases/download/v${BIRD_VERSION}/bird-macos-universal-v${BIRD_VERSION}.tar.gz"
+    if curl -fsSL "$BIRD_URL" -o /tmp/bird.tar.gz >> "$LOG_FILE" 2>&1; then
+      tar -xzf /tmp/bird.tar.gz -C /tmp >> "$LOG_FILE" 2>&1
+      if [ -f /tmp/bird ]; then
+        mv /tmp/bird /usr/local/bin/bird 2>/dev/null || cp /tmp/bird "$HOME/.local/bin/bird" 2>/dev/null
+        chmod +x /usr/local/bin/bird 2>/dev/null || chmod +x "$HOME/.local/bin/bird" 2>/dev/null
+        ok "bird CLI v${BIRD_VERSION}"
+      else
+        warn "bird binary not found in archive"
+      fi
+      rm -f /tmp/bird.tar.gz /tmp/bird
+    else
+      warn "Failed to download bird CLI — install manually: https://github.com/steipete/bird"
+    fi
+  fi
+fi
+
 #===============================================================================
 # STEP 3: NVM + Node.js v24.13.0
 #===============================================================================
