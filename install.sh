@@ -4,13 +4,13 @@
 # Complete 20-step Mac setup for the full OpenClaw AI employee stack.
 #
 # Usage:
-#   ./install.sh [--client-name NAME] [--dry-run] [--skip-docker]
-#                [--secrets-file FILE] [--help]
+#   ./install.sh <client-name>
+#   ./install.sh <client-name> --dry-run
+#   ./install.sh <client-name> --secrets-file ~/secrets.txt
 #
-# Secrets file format (KEY=VALUE, one per line):
-#   ANTHROPIC_API_KEY=sk-ant-...
-#   OPENROUTER_API_KEY=sk-or-v1-...
-#   COMPOSIO_API_KEY=ak_...
+# Examples:
+#   ./install.sh acme-corp
+#   ./install.sh test-vm --dry-run
 #
 # Supports: Apple Silicon (arm64) + Intel (x86_64)
 # Idempotent: safe to run multiple times.
@@ -56,31 +56,45 @@ R='\033[0;31m'  G='\033[0;32m'  Y='\033[1;33m'  B='\033[0;34m'  C='\033[0;36m'  
 #-------------------------------------------------------------------------------
 # Parse args
 #-------------------------------------------------------------------------------
+# First arg (non-flag) is the client name
 while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run)          DRY_RUN=true; shift ;;
     --skip-docker)      SKIP_DOCKER=true; shift ;;
-    --client-name)
-      if [ -z "${2:-}" ]; then echo "Error: --client-name requires a value"; exit 1; fi
-      CLIENT_NAME="$2"; shift 2 ;;
     --secrets-file)
       if [ -z "${2:-}" ]; then echo "Error: --secrets-file requires a path"; exit 1; fi
       SECRETS_FILE="$2"; shift 2 ;;
+    --client-name)
+      # Legacy flag — still works
+      if [ -z "${2:-}" ]; then echo "Error: --client-name requires a value"; exit 1; fi
+      CLIENT_NAME="$2"; shift 2 ;;
     --help|-h)
-      echo "Usage: $0 [--client-name NAME] [--dry-run] [--skip-docker] [--secrets-file FILE]"
+      echo "Usage: $0 <client-name> [--dry-run] [--skip-docker] [--secrets-file FILE]"
       echo ""
-      echo "Options:"
-      echo "  --client-name NAME    Client identifier (default: 'default')"
-      echo "  --dry-run             Show what would happen without making changes"
-      echo "  --skip-docker         Skip Docker Desktop and Neo4j steps"
-      echo "  --secrets-file FILE   Path to KEY=VALUE secrets file"
-      echo "  --help, -h            Show this help message"
-      echo ""
-      echo "Secrets file keys: ANTHROPIC_API_KEY, OPENROUTER_API_KEY, COMPOSIO_API_KEY"
+      echo "Examples:"
+      echo "  $0 acme-corp                         # Full install"
+      echo "  $0 test-vm --dry-run                  # Preview only"
+      echo "  $0 acme-corp --secrets-file keys.txt  # Keys from file"
       exit 0 ;;
-    *) echo "Unknown option: $1"; exit 1 ;;
+    -*)
+      echo "Unknown option: $1"
+      echo "Usage: $0 <client-name> [--dry-run] [--skip-docker]"
+      exit 1 ;;
+    *)
+      # Positional arg = client name
+      CLIENT_NAME="$1"; shift ;;
   esac
 done
+
+# Client name is required (unless dry-run with default)
+if [ "$CLIENT_NAME" = "default" ] && ! $DRY_RUN; then
+  echo ""
+  echo "Usage: $0 <client-name>"
+  echo ""
+  echo "  Example: $0 acme-corp"
+  echo ""
+  exit 1
+fi
 
 #-------------------------------------------------------------------------------
 # Helpers
@@ -194,25 +208,29 @@ load_secrets() {
         COMPOSIO_API_KEY)   COMPOSIO_API_KEY="$value" ;;
       esac
     done < "$SECRETS_FILE"
-    # Validate all keys present
+    # Validate required keys present (Anthropic is optional — Max plan)
     local missing=()
-    [ -z "$ANTHROPIC_API_KEY" ]  && missing+=("ANTHROPIC_API_KEY")
     [ -z "$OPENROUTER_API_KEY" ] && missing+=("OPENROUTER_API_KEY")
     [ -z "$COMPOSIO_API_KEY" ]   && missing+=("COMPOSIO_API_KEY")
     if [ ${#missing[@]} -gt 0 ]; then
       echo -e "${R}Error: secrets file missing keys: ${missing[*]}${NC}"
       exit 1
     fi
+    [ -z "$ANTHROPIC_API_KEY" ] && ANTHROPIC_API_KEY="MAX_PLAN"
   elif ! $DRY_RUN; then
     echo ""
-    echo -e "${C}  No --secrets-file provided. Please enter API keys:${NC}"
+    echo -e "${C}  Enter API keys (paste each one and press Enter):${NC}"
     echo ""
-    read -r -p "  ANTHROPIC_API_KEY: " ANTHROPIC_API_KEY
-    if [ -z "$ANTHROPIC_API_KEY" ]; then echo -e "${R}Error: ANTHROPIC_API_KEY is required${NC}"; exit 1; fi
-    read -r -p "  OPENROUTER_API_KEY: " OPENROUTER_API_KEY
-    if [ -z "$OPENROUTER_API_KEY" ]; then echo -e "${R}Error: OPENROUTER_API_KEY is required${NC}"; exit 1; fi
-    read -r -p "  COMPOSIO_API_KEY: " COMPOSIO_API_KEY
-    if [ -z "$COMPOSIO_API_KEY" ]; then echo -e "${R}Error: COMPOSIO_API_KEY is required${NC}"; exit 1; fi
+    read -r -p "  OpenRouter API key (sk-or-...): " OPENROUTER_API_KEY
+    if [ -z "$OPENROUTER_API_KEY" ]; then echo -e "${R}Error: OpenRouter key is required${NC}"; exit 1; fi
+    read -r -p "  Composio API key (ak_...): " COMPOSIO_API_KEY
+    if [ -z "$COMPOSIO_API_KEY" ]; then echo -e "${R}Error: Composio key is required${NC}"; exit 1; fi
+    echo ""
+    read -r -p "  Anthropic API key (press Enter to skip if using Max plan): " ANTHROPIC_API_KEY
+    if [ -z "$ANTHROPIC_API_KEY" ]; then
+      ANTHROPIC_API_KEY="MAX_PLAN"
+      echo -e "  ${C}→${NC} Using Anthropic Max plan (no API key needed)"
+    fi
     echo ""
   else
     # Dry run — use placeholders
