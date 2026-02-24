@@ -59,23 +59,23 @@ brew "yt-dlp"
 brew "openai-whisper"
 
 # ═══════════════════════════════════════
-# OpenClaw Skills Dependencies
+# OpenClaw Skills Dependencies (steipete/tap)
 # ═══════════════════════════════════════
-brew "bird"
-brew "wacli"
+brew "steipete/tap/bird"
+brew "steipete/tap/wacli"
 brew "himalaya"
-brew "imsg"
+brew "steipete/tap/imsg"
 brew "antoniorodr/memo/memo"
-brew "remindctl"
-brew "peekaboo"
-brew "gogcli"
-brew "goplaces"
-brew "sag"
-brew "gifgrep"
-brew "songsee"
-brew "ordercli"
-brew "camsnap"
-brew "summarize"
+brew "steipete/tap/remindctl"
+brew "steipete/tap/peekaboo"
+brew "steipete/tap/gogcli"
+brew "steipete/tap/goplaces"
+brew "steipete/tap/sag"
+brew "steipete/tap/gifgrep"
+brew "steipete/tap/songsee"
+brew "steipete/tap/ordercli"
+brew "steipete/tap/camsnap"
+brew "steipete/tap/summarize"
 
 # ═══════════════════════════════════════
 # System Monitoring
