@@ -1,0 +1,7 @@
+ANTHROPIC_API_KEY=op://openclaw-{{CLIENT_NAME}}/anthropic/credential
+OPENROUTER_API_KEY=op://openclaw-{{CLIENT_NAME}}/openrouter/credential
+COMPOSIO_API_KEY=op://openclaw-{{CLIENT_NAME}}/composio/credential
+TELEGRAM_BOT_TOKEN=op://openclaw-{{CLIENT_NAME}}/telegram/bot-token
+BLUEBUBBLES_PASSWORD=op://openclaw-{{CLIENT_NAME}}/bluebubbles/password
+BRAVE_SEARCH_API_KEY=op://openclaw-{{CLIENT_NAME}}/brave-search/credential
+OPENCLAW_GATEWAY_TOKEN=op://openclaw-{{CLIENT_NAME}}/gateway/token

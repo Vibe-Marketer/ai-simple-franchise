@@ -1,0 +1,552 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.2.12",
+    "lastTouchedAt": "{{INSTALL_DATE}}"
+  },
+  "env": {
+    "shellEnv": {
+      "enabled": true
+    }
+  },
+  "wizard": {
+    "lastRunAt": "{{INSTALL_DATE}}",
+    "lastRunVersion": "2026.2.12",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "update": {
+    "channel": "stable",
+    "checkOnStart": true
+  },
+  "auth": {
+    "profiles": {
+      "anthropic:default": {
+        "provider": "anthropic",
+        "mode": "token"
+      },
+      "openrouter:default": {
+        "provider": "openrouter",
+        "mode": "token"
+      }
+    },
+    "order": {
+      "anthropic": [
+        "anthropic:default"
+      ],
+      "openrouter": [
+        "openrouter:default"
+      ]
+    },
+    "cooldowns": {
+      "billingBackoffHours": 1,
+      "billingBackoffHoursByProvider": {
+        "anthropic": 1,
+        "openrouter": 0.25
+      },
+      "billingMaxHours": 4,
+      "failureWindowHours": 1
+    }
+  },
+  "models": {
+    "providers": {}
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-5",
+        "fallbacks": [
+          "anthropic/claude-haiku-4-5",
+          "openrouter/moonshotai/kimi-k2.5",
+          "google/gemini-3-flash-preview",
+          "openrouter/openai/gpt-4o-mini"
+        ]
+      },
+      "models": {
+        "anthropic/claude-haiku-4-5": {},
+        "anthropic/claude-opus-4-5": {
+          "alias": "opus"
+        },
+        "anthropic/claude-sonnet-4-5": {
+          "alias": "sonnet"
+        },
+        "google/gemini-3-flash-preview": {
+          "alias": "gemini-flash"
+        },
+        "openrouter/moonshotai/kimi-k2.5": {
+          "alias": "kimi"
+        },
+        "openrouter/openai/gpt-4o-mini": {
+          "alias": "gpt4o-mini"
+        },
+        "openrouter/google/gemini-2.5-flash-lite": {
+          "alias": "gemini-lite"
+        }
+      },
+      "workspace": "{{HOME}}/.openclaw/workspace",
+      "skipBootstrap": false,
+      "contextPruning": {
+        "mode": "cache-ttl",
+        "ttl": "1h"
+      },
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "thinkingDefault": "low",
+      "timeoutSeconds": 180,
+      "heartbeat": {
+        "every": "5m",
+        "model": "openrouter/google/gemini-2.5-flash-lite"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8,
+        "model": {
+          "primary": "anthropic/claude-haiku-4-5",
+          "fallbacks": [
+            "openrouter/moonshotai/kimi-k2.5",
+            "google/gemini-2.5-flash-lite",
+            "openrouter/openai/gpt-4o-mini"
+          ]
+        }
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "default": true,
+        "name": "{{CLIENT_NAME}}",
+        "workspace": "{{HOME}}/.openclaw/workspace",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-5",
+          "fallbacks": [
+            "anthropic/claude-haiku-4-5",
+            "openrouter/moonshotai/kimi-k2.5",
+            "google/gemini-3-flash-preview",
+            "openrouter/openai/gpt-4o-mini"
+          ]
+        },
+        "subagents": {
+          "allowAgents": [
+            "content",
+            "bizdev",
+            "dev",
+            "quick",
+            "intake",
+            "outreach"
+          ],
+          "model": {
+            "primary": "anthropic/claude-haiku-4-5",
+            "fallbacks": [
+              "openrouter/moonshotai/kimi-k2.5",
+              "google/gemini-2.5-flash-lite",
+              "openrouter/openai/gpt-4o-mini"
+            ]
+          }
+        },
+        "tools": {
+          "profile": "full",
+          "deny": []
+        }
+      },
+      {
+        "id": "content",
+        "name": "Content Engine",
+        "workspace": "{{HOME}}/.openclaw/workspace-content",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-5",
+          "fallbacks": [
+            "anthropic/claude-haiku-4-5",
+            "openrouter/moonshotai/kimi-k2.5",
+            "google/gemini-3-flash-preview",
+            "openrouter/openai/gpt-4o-mini"
+          ]
+        },
+        "subagents": {
+          "model": {
+            "primary": "anthropic/claude-haiku-4-5",
+            "fallbacks": [
+              "openrouter/moonshotai/kimi-k2.5",
+              "google/gemini-2.5-flash-lite"
+            ]
+          }
+        },
+        "tools": {
+          "profile": "full",
+          "deny": [
+            "message"
+          ]
+        }
+      },
+      {
+        "id": "bizdev",
+        "name": "Business Development",
+        "workspace": "{{HOME}}/.openclaw/workspace-bizdev",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-5",
+          "fallbacks": [
+            "anthropic/claude-haiku-4-5",
+            "openrouter/moonshotai/kimi-k2.5",
+            "google/gemini-3-flash-preview",
+            "openrouter/openai/gpt-4o-mini"
+          ]
+        },
+        "subagents": {
+          "model": {
+            "primary": "anthropic/claude-haiku-4-5",
+            "fallbacks": [
+              "openrouter/moonshotai/kimi-k2.5",
+              "google/gemini-2.5-flash-lite"
+            ]
+          }
+        },
+        "tools": {
+          "profile": "full",
+          "deny": [
+            "message"
+          ]
+        }
+      },
+      {
+        "id": "dev",
+        "name": "Developer",
+        "workspace": "{{HOME}}/.openclaw/workspace-dev",
+        "model": {
+          "primary": "anthropic/claude-opus-4-5",
+          "fallbacks": [
+            "anthropic/claude-sonnet-4-5",
+            "anthropic/claude-haiku-4-5",
+            "openrouter/moonshotai/kimi-k2.5",
+            "google/gemini-3-flash-preview"
+          ]
+        },
+        "subagents": {
+          "model": {
+            "primary": "anthropic/claude-sonnet-4-5",
+            "fallbacks": [
+              "anthropic/claude-haiku-4-5",
+              "openrouter/moonshotai/kimi-k2.5",
+              "google/gemini-2.5-flash-lite"
+            ]
+          }
+        },
+        "tools": {
+          "profile": "full",
+          "deny": [
+            "message"
+          ]
+        }
+      },
+      {
+        "id": "quick",
+        "name": "Quick Responder",
+        "workspace": "{{HOME}}/.openclaw/workspace-quick",
+        "model": {
+          "primary": "anthropic/claude-haiku-4-5",
+          "fallbacks": [
+            "openrouter/moonshotai/kimi-k2.5",
+            "google/gemini-2.5-flash-lite",
+            "openrouter/openai/gpt-4o-mini"
+          ]
+        },
+        "tools": {
+          "profile": "full",
+          "deny": [
+            "sessions_spawn",
+            "sessions_send",
+            "sessions_history",
+            "sessions_list",
+            "session_status"
+          ]
+        }
+      },
+      {
+        "id": "intake",
+        "name": "Intake Processor",
+        "workspace": "{{HOME}}/.openclaw/workspace",
+        "model": {
+          "primary": "anthropic/claude-haiku-4-5",
+          "fallbacks": [
+            "openrouter/moonshotai/kimi-k2.5",
+            "google/gemini-2.5-flash-lite",
+            "openrouter/openai/gpt-4o-mini"
+          ]
+        },
+        "tools": {
+          "profile": "full",
+          "deny": [
+            "message",
+            "sessions_spawn"
+          ]
+        }
+      },
+      {
+        "id": "outreach",
+        "name": "Outreach Executor",
+        "workspace": "{{HOME}}/.openclaw/workspace-outreach",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-5",
+          "fallbacks": [
+            "anthropic/claude-haiku-4-5",
+            "openrouter/moonshotai/kimi-k2.5",
+            "google/gemini-3-flash-preview",
+            "openrouter/openai/gpt-4o-mini"
+          ]
+        },
+        "subagents": {
+          "model": {
+            "primary": "anthropic/claude-haiku-4-5",
+            "fallbacks": [
+              "openrouter/moonshotai/kimi-k2.5",
+              "google/gemini-2.5-flash-lite"
+            ]
+          }
+        },
+        "tools": {
+          "profile": "full",
+          "deny": []
+        }
+      }
+    ]
+  },
+  "tools": {
+    "web": {
+      "search": {
+        "enabled": true,
+        "apiKey": "{{BRAVE_SEARCH_API_KEY}}"
+      },
+      "fetch": {
+        "enabled": true
+      }
+    }
+  },
+  "bindings": [
+    {
+      "agentId": "quick",
+      "match": {
+        "channel": "whatsapp"
+      }
+    },
+    {
+      "agentId": "main",
+      "match": {
+        "channel": "bluebubbles"
+      }
+    },
+    {
+      "agentId": "main",
+      "match": {
+        "channel": "telegram"
+      }
+    }
+  ],
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": false,
+    "restart": true
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "channels": {
+    "defaults": {
+      "heartbeat": {
+        "showOk": false,
+        "showAlerts": true,
+        "useIndicator": true
+      }
+    },
+    "whatsapp": {
+      "enabled": true,
+      "sendReadReceipts": true,
+      "dmPolicy": "allowlist",
+      "allowFrom": [],
+      "groupPolicy": "allowlist",
+      "mediaMaxMb": 50,
+      "groups": {},
+      "debounceMs": 0
+    },
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "botToken": "{{TELEGRAM_BOT_TOKEN}}",
+      "groupPolicy": "disabled",
+      "streamMode": "partial",
+      "mediaMaxMb": 50,
+      "actions": {
+        "reactions": true,
+        "sendMessage": true,
+        "deleteMessage": true
+      }
+    },
+    "bluebubbles": {
+      "enabled": true,
+      "serverUrl": "http://localhost:1234",
+      "password": "{{BLUEBUBBLES_PASSWORD}}",
+      "webhookPath": "/bluebubbles-webhook",
+      "dmPolicy": "allowlist",
+      "allowFrom": [],
+      "groupAllowFrom": [],
+      "groupPolicy": "allowlist",
+      "sendReadReceipts": true,
+      "actions": {
+        "reactions": true,
+        "edit": true,
+        "unsend": true,
+        "reply": true,
+        "sendWithEffect": true,
+        "renameGroup": true,
+        "addParticipant": true,
+        "removeParticipant": true,
+        "sendAttachment": true
+      }
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "controlUi": {
+      "allowedOrigins": [
+        "http://localhost:18789"
+      ],
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    },
+    "auth": {
+      "mode": "token",
+      "token": "{{GATEWAY_AUTH_TOKEN}}",
+      "allowTailscale": false
+    },
+    "trustedProxies": [
+      "127.0.0.1",
+      "::1"
+    ],
+    "tailscale": {
+      "mode": "serve",
+      "resetOnExit": true
+    },
+    "http": {
+      "endpoints": {
+        "chatCompletions": {
+          "enabled": true
+        },
+        "responses": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "skills": {
+    "install": {
+      "nodeManager": "npm"
+    },
+    "entries": {}
+  },
+  "plugins": {
+    "slots": {
+      "memory": "openclaw-mem0"
+    },
+    "entries": {
+      "bluebubbles": {
+        "enabled": true
+      },
+      "openclaw-mem0": {
+        "enabled": true,
+        "config": {
+          "autoCapture": true,
+          "autoRecall": true,
+          "mode": "open-source",
+          "enableGraph": true,
+          "skipGroupChats": true,
+          "identityMapPath": "extensions/openclaw-mem0/config/identity-map.json",
+          "oss": {
+            "embedder": {
+              "config": {
+                "apiKey": "{{OPENROUTER_API_KEY}}",
+                "baseURL": "https://openrouter.ai/api/v1",
+                "embeddingDims": 768,
+                "model": "google/gemini-embedding-001"
+              },
+              "provider": "openai"
+            },
+            "historyDbPath": "{{HOME}}/.openclaw/memory/mem0-history.db",
+            "llm": {
+              "config": {
+                "apiKey": "{{OPENROUTER_API_KEY}}",
+                "model": "openai/gpt-4o-mini",
+                "temperature": 0.1,
+                "baseURL": "https://openrouter.ai/api/v1"
+              },
+              "provider": "openai"
+            },
+            "vectorStore": {
+              "config": {
+                "collectionName": "openclaw-memories",
+                "dbPath": "{{HOME}}/.openclaw/memory/mem0-vectors.db",
+                "dimension": 768
+              },
+              "provider": "memory"
+            },
+            "graphStore": {
+              "provider": "neo4j",
+              "config": {
+                "url": "bolt://localhost:7687",
+                "username": "neo4j",
+                "password": "openclaw-graph-2026"
+              },
+              "customPrompt": "Focus on extracting business entities and relationships: people (clients, collaborators, contacts), companies/organizations, projects/products, deals/contracts, payments, meetings, and introductions. Capture relationship types like: works_with, client_of, introduced_by, owes_payment, collaborates_on, founded, manages, scheduled_with."
+            }
+          },
+          "sleepMode": {
+            "enabled": true,
+            "logDir": "memory/logs",
+            "digestDir": "memory/digests",
+            "digestEnabled": true,
+            "retentionDays": 365,
+            "maxChunkChars": 4000
+          },
+          "customPrompt": "You are a business intelligence memory system. Extract distinct, factual statements from conversations. Focus on:\n\n1. People & Relationships: Names, roles, companies, how they're connected, contact details, communication preferences.\n2. Deals & Contracts: Client names, project scope, payment amounts, deadlines, deliverables, payment status (paid/owed/overdue).\n3. Business Commitments: Promises made, follow-ups needed, next steps agreed upon, meeting outcomes.\n4. Project Status: Current state of projects, blockers, milestones, launch dates, technical decisions.\n5. Financial Details: Revenue, costs, pricing, invoices, receivables, payment terms.\n6. Preferences & Decisions: Strategic choices, tool preferences, workflow decisions, lessons learned.\n7. Scheduled Events: Meetings, calls, deadlines, recurring commitments.\n\nReturn your response as JSON with a 'facts' key containing an array of strings. Each fact should be a standalone statement that would be useful months later. Prefer specific details (names, numbers, dates) over vague summaries. Skip pleasantries, status acknowledgments, and internal agent operations.",
+          "searchThreshold": 0.5,
+          "topK": 5,
+          "userId": "{{CLIENT_ID}}"
+        }
+      },
+      "telegram": {
+        "enabled": true
+      },
+      "whatsapp": {
+        "enabled": true
+      },
+      "openclaw-composio": {
+        "enabled": true,
+        "config": {
+          "apiKey": "{{COMPOSIO_API_KEY}}",
+          "defaultEntityId": "{{CLIENT_ID}}",
+          "entityMapPath": "extensions/openclaw-composio/config/entity-map.json",
+          "toolkits": ["gmail", "googlecalendar", "slack", "notion", "github"],
+          "toolPrefix": "composio",
+          "connectLinkRedirect": "https://composio.dev/redirect"
+        }
+      }
+    },
+    "installs": {
+      "openclaw-composio": {
+        "source": "local",
+        "spec": "@openclaw/openclaw-composio",
+        "installPath": "{{HOME}}/.openclaw/extensions/openclaw-composio",
+        "version": "0.1.0",
+        "installedAt": "{{INSTALL_DATE}}"
+      },
+      "openclaw-mem0": {
+        "source": "npm",
+        "spec": "@mem0/openclaw-mem0",
+        "installPath": "{{HOME}}/.openclaw/extensions/openclaw-mem0",
+        "version": "0.1.0",
+        "installedAt": "{{INSTALL_DATE}}"
+      }
+    }
+  }
+}

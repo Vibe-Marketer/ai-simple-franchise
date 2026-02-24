@@ -1,0 +1,9 @@
+{
+  "entities": {
+    "{{CLIENT_ID}}": {
+      "composioEntityId": "{{CLIENT_ID}}",
+      "label": "{{CLIENT_NAME}}"
+    }
+  },
+  "aliases": {}
+}

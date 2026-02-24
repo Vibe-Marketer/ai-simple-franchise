@@ -1,0 +1,943 @@
+{
+  "version": 1,
+  "_template_info": {
+    "description": "Templatized cron jobs for AI Simple Franchise. Replace template variables before deploying.",
+    "variables": {
+      "{{OWNER_PHONE}}": "Owner's phone number in E.164 format (e.g., +15551234567)",
+      "{{HOME}}": "Home directory path (e.g., /Users/john or /home/john)",
+      "{{USER_NAME}}": "Owner's first name (e.g., John)",
+      "{{TWITTER_HANDLE}}": "Owner's Twitter/X handle with @ (e.g., @johndoe)",
+      "{{EMAIL_ADDRESS}}": "Owner's primary email address",
+      "{{WHATSAPP_GROUP_ID}}": "WhatsApp group ID for community group (e.g., 120363XXXXXXXXXX@g.us)",
+      "{{COMMUNITY_CALL_LINK}}": "URL for community call join link"
+    }
+  },
+  "jobs": [
+    {
+      "id": "36310542-a5eb-4369-88e1-4246391a22ab",
+      "agentId": "quick",
+      "name": "daily-founders-tip",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 9 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context. Send a concise daily tip or poll to the founders WhatsApp group (see BUSINESS.md > Contacts for group ID) using wacli."
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "c878d09b-b65c-4984-bb47-17d8f5ac91fd",
+      "agentId": "content",
+      "name": "Twitter Morning Post",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 8 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context. Post to Twitter. Read {{HOME}}/.openclaw/workspace-content/social-media/post-queue.json, pick the next unposted item (skip any marked [NEEDS DATA] or [NEEDS APPROVAL]). BEFORE posting: verify the post doesn't contain fabricated numbers \u2014 if any specific claim seems suspicious and isn't clearly from content-bank.md, SKIP it and pick the next one. Post via browser automation (profile=openclaw, login if needed using 1Password credentials), then update the JSON to mark it as posted. Keep it quick - just post and confirm.",
+        "timeoutSeconds": 420
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "865490b5-ee7c-4e5b-a8b9-9fab4abd7f84",
+      "agentId": "content",
+      "name": "Twitter Noon Post",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 12 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context. Post to Twitter. Read {{HOME}}/.openclaw/workspace-content/social-media/post-queue.json, pick the next unposted item (skip any marked [NEEDS DATA] or [NEEDS APPROVAL]). BEFORE posting: verify the post doesn't contain fabricated numbers \u2014 if any specific claim seems suspicious and isn't clearly from content-bank.md, SKIP it and pick the next one. Post via browser automation (profile=openclaw, login if needed using 1Password credentials), then update the JSON to mark it as posted. Keep it quick - just post and confirm.",
+        "timeoutSeconds": 420
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "a9eb62ac-5adc-4d8a-93ea-cd470c70f6b6",
+      "agentId": "content",
+      "name": "Twitter Evening Post",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 18 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context. Post to Twitter. Read {{HOME}}/.openclaw/workspace-content/social-media/post-queue.json, pick the next unposted item (skip any marked [NEEDS DATA] or [NEEDS APPROVAL]). BEFORE posting: verify the post doesn't contain fabricated numbers \u2014 if any specific claim seems suspicious and isn't clearly from content-bank.md, SKIP it and pick the next one. Post via browser automation (profile=openclaw, login if needed using 1Password credentials), then update the JSON to mark it as posted. Keep it quick - just post and confirm.",
+        "timeoutSeconds": 420
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "ed98d073-aca5-4dea-a84d-388a001400f3",
+      "agentId": "main",
+      "name": "Daily Morning Briefing",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 7 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Compile and send {{USER_NAME}}'s daily morning briefing via iMessage. Steps:\n\n1. CALENDAR: Run `gog calendar events primary --from $(date -I) --to $(date -v+2d -I)` to get today and tomorrow's events. Format as a quick list.\n\n2. EMAIL: Run `gog gmail search 'newer_than:1d is:unread' --max 15 --json` to get recent unread emails. Identify anything urgent (from important senders, time-sensitive subjects). Summarize the top 3-5 that need attention.\n\n3. PROJECT: Read {{HOME}}/repos/brain/.planning/STATE.md for CallVault status. Extract current phase, progress percentage, and any blockers.\n\n4. WEATHER: Use the weather skill to get today's forecast for Syracuse NY.\n\n5. COMPILE: Create a concise briefing (~200 words max) with sections: Calendar, Email Highlights, CallVault Status, Weather.\n\n6. SEND: Deliver via BlueBubbles to {{USER_NAME}} ({{OWNER_PHONE}}). Keep it scannable - bullet points, no fluff.\n\nFormat example:\n---\n\u2600\ufe0f GOOD MORNING\n\n\ud83d\udcc5 TODAY: 3 events\n\u2022 10am - Call with X\n\u2022 2pm - Y meeting\n\n\ud83d\udce7 INBOX (12 unread, 2 need attention)\n\u2022 [Urgent] Subject from Sender - brief note\n\u2022 Subject from Sender - brief note\n\n\ud83c\udfd7\ufe0f CALLVAULT: 98% complete (Phase 11)\n\u2022 Next: PROFITS Frontend Trigger\n\n\ud83c\udf24\ufe0f WEATHER: 45\u00b0F, partly cloudy\n---",
+        "timeoutSeconds": 300
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "c91df27f-2cf2-40e7-b504-ffeb642c5fe5",
+      "agentId": "main",
+      "name": "Weekly Strategic Review",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 20 * * 0",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Compile {{USER_NAME}}'s weekly strategic review and send via iMessage.\n\n1. READ MEMORY: Scan {{HOME}}/.openclaw/workspace/memory/ for this week's daily files. Extract key decisions, wins, blockers, lessons.\n\n2. PROJECT STATUS: Read {{HOME}}/repos/brain/.planning/STATE.md and {{HOME}}/repos/brain/.planning/ROADMAP.md. Calculate weekly velocity (plans completed this week vs last).\n\n3. UPCOMING: What's on the calendar for next week? Any deadlines approaching?\n\n4. OPEN LOOPS: What got started but not finished? What needs follow-up?\n\n5. RECOMMENDATIONS: Based on patterns observed, what should {{USER_NAME}} focus on next week? What can be delegated or dropped?\n\n6. COMPILE: Create a Sunday evening briefing (~300 words). Sections: Week in Review, Project Progress, Open Loops, Next Week Focus, Recommendations.\n\n7. SEND: Deliver via BlueBubbles to {{OWNER_PHONE}}.\n\nTone: Strategic partner, not assistant. Be direct about what worked, what didn't, what needs attention.",
+        "timeoutSeconds": 600
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "ddf1635e-e8d0-4fb2-a47c-eff2f414ce7e",
+      "agentId": "main",
+      "name": "Inbox Triage",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "5 10,14,17 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Scan {{USER_NAME}}'s inbox and alert only if something needs attention.\n\n1. RUN: `gog gmail search 'newer_than:4h is:unread' --max 20 --json --account {{EMAIL_ADDRESS}}`\n\n2. ANALYZE each email:\n   - URGENT: Time-sensitive, from important contacts, requires immediate action\n   - IMPORTANT: Needs response within 24h\n   - FYI: Informational, can wait\n   - SKIP: Newsletters, promotions, auto-notifications\n\n3. DECISION:\n   - If 0 urgent/important: Do NOT send a message. Silent success.\n   - If 1+ urgent/important: Send concise summary via BlueBubbles to {{OWNER_PHONE}}\n\n4. FORMAT (if sending):\n   \ud83d\udce7 INBOX CHECK\n   \n   [Urgent] Subject - From - one-line context\n   [Important] Subject - From - one-line context\n   \n   (X other unread emails - nothing urgent)\n\nIMPORTANT: Only message {{USER_NAME}} if there's something worth his attention. Silence = no news = good news.",
+        "timeoutSeconds": 180
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "beca0d50-7b69-48cf-b37e-ab9855947424",
+      "agentId": "bizdev",
+      "name": "Lead Surfacer",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "5 8,12,16,20 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context (products, ICP, competitors, lead scoring, search queries).\n\nFind new leads.\n\n1. Search Twitter, LinkedIn, Reddit (via web search) using queries from BUSINESS.md > Lead Search Queries\n\n2. Read existing leads from {{HOME}}/.openclaw/workspace-bizdev/leads/\n3. Add NEW leads only (don't duplicate)\n4. Update hot-leads file with new prospects\n5. If you find any VERY hot leads (score 8+), highlight them prominently in your summary with the lead details, score, and recommended action. Also write an escalation to {{HOME}}/.openclaw/workspace/_handoff/escalations.json for main's heartbeat pickup.\n\nBe thorough. This is revenue.",
+        "timeoutSeconds": 600
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "1bb5685e-07f0-4685-aa85-76b4e553fc08",
+      "agentId": "content",
+      "name": "Content Generator",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 7 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Generate 3-5 posts for Twitter/X. Read these files IN ORDER before writing anything:\n\n1. BUSINESS.md \u2014 business context. {{USER_NAME}}'s PRIMARY business is AI automation consulting (40% of content). CallVault is ONE product, not the identity.\n2. {{HOME}}/.openclaw/workspace/skills/viral-content/SKILL.md \u2014 content frameworks, 18 content types, hook library, humanize pass\n3. {{HOME}}/.openclaw/workspace-content/CONTENT-RESEARCH-SYNTHESIS.md \u2014 REQUIRED: 40+ hook templates, creator frameworks (Hormozi Hook-Retain-Reward, Welsh Content Matrix, Dickie Bush Atomic Essays, Nicolas Cole 1-3-1, Dan Koe PPP, Sahil Bloom Story Spine), Twitter algorithm weights (author replies 75x, bookmarks 10x), Reddit strategy, trending angles. USE THESE FRAMEWORKS.\n4. {{HOME}}/.openclaw/workspace-content/social-media/content-bank.md \u2014 ONLY source of truth for facts, numbers, stories. EVERY number in a post MUST come from this file.\n5. {{HOME}}/.openclaw/workspace-content/social-media/recent-call-insights.json (if exists) \u2014 fresh call data\n6. {{HOME}}/.openclaw/workspace-content/social-media/content-inspiration.json (if exists) \u2014 today's trending topics\n7. {{HOME}}/.openclaw/workspace-content/social-media/post-queue.json \u2014 don't duplicate\n\nGENERATION RULES:\n1. Pick 3-5 unique Theme+Style combos from SKILL.md Content Matrix. Themes MUST match BUSINESS.md weights: 2 posts AI automation, 1 building in public, 1 sales strategy, max 1 other.\n2. For EACH post, pick a specific framework from CONTENT-RESEARCH-SYNTHESIS.md (PAS, 1-3-1, PPP, Hook-Retain-Reward) and a specific hook template from the 40+ in the library.\n3. Write bodies FIRST, hooks LAST (Welsh backward-build method).\n4. Run EVERY draft through Humanize Pass AND Quality Gate from SKILL.md.\n5. Posts using client names get [NEEDS APPROVAL] tag.\n\nANTI-HALLUCINATION (ZERO TOLERANCE \u2014 violation = delete post):\n- EVERY specific number MUST exist in content-bank.md. Search the file before using ANY number.\n- NEVER invent metrics like 'retention went from X to Y' or 'I analyzed N calls' unless those EXACT numbers are in content-bank.md.\n- If you need a number and don't have it: use 'X' placeholder and mark [NEEDS DATA].\n- When in doubt, write about frameworks/principles without specific claims.\n\nCONTENT WEIGHTING CHECK: Of the 3-5 posts generated, at LEAST 2 must be about AI automation/agents. Max 1 can mention CallVault by name.\n\nVoice: Levelsio meets Hormozi. First person, contractions, specific real numbers, admit failures.",
+        "timeoutSeconds": 600
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "f018cd6a-c015-4da5-968a-bbaa23538a60",
+      "agentId": "main",
+      "name": "daily-task-reminder",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "5 9 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Daily task reminder for {{USER_NAME}}. Read {{HOME}}/.openclaw/workspace/tasks/TASKS.md and send a concise reminder via iMessage ({{OWNER_PHONE}}) of outstanding tasks. Prioritize: 1) Overdue items, 2) Urgent items, 3) This week items. Keep it scannable - bullet points, no fluff. If all tasks are done, congratulate him and ask if there's anything new to add.",
+        "timeoutSeconds": 300
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "678fae3d-f7ff-44b0-8485-613a86253755",
+      "agentId": "quick",
+      "name": "Community Call Reminder - Friday",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "55 11 * * 5",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run this command: wacli send {{WHATSAPP_GROUP_ID}} \"Community call starts in 5 -- {{COMMUNITY_CALL_LINK}}\"",
+        "timeoutSeconds": 180
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "cee5879c-6f61-4a31-982d-69d5062b27c2",
+      "agentId": "content",
+      "name": "reddit-daily-post",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 10 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context. Read {{HOME}}/.openclaw/workspace-content/CONTENT-RESEARCH-SYNTHESIS.md sections 2A-2K for Reddit-specific strategy \u2014 this contains the 90/10 rule, Proof Without Pitch framework, CTA Ladder, anti-ban cadence, subreddit strategies, and the fact that Reddit is 40.1% of all AI citations.\n\nAlso read {{HOME}}/.openclaw/workspace-content/social-media/content-bank.md for real data to reference.\n\nDaily Reddit engagement. Post valuable content to relevant subreddits (see BUSINESS.md > Lead Search Queries > Reddit). Rules:\n1) Value-first, ZERO direct promotion \u2014 use 'Proof Without Pitch' from research synthesis\n2) Engage authentically \u2014 answer questions where AI automation consulting is relevant\n3) Use the comment structure from CONTENT-RESEARCH-SYNTHESIS.md: Context \u2192 Problem \u2192 Data (3-7 metrics from content-bank.md) \u2192 Method \u2192 Tradeoffs \u2192 Disclosure\n4) Target threads with < 10 comments for maximum visibility (per research case studies)\n5) NEVER use marketing language: 'revolutionary', 'game-changer', 'leverage', 'best-in-class'\n6) Track posts in {{HOME}}/.openclaw/workspace-content/social-media/reddit-tracker.json\n7) Use browser automation (profile=openclaw) to post. Rotate subreddits daily.\n\nRemember: every quality Reddit post = permanent AI citation marketing. Format for LLM extraction: comparison listicles, Q&A, specific numbers, clear structure.",
+        "timeoutSeconds": 600
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "820e40be-3ce5-4dfb-903a-339b199c7ab9",
+      "agentId": "content",
+      "name": "Twitter Engagement",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "15 9,13,17 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context. Execute Twitter engagement strategy.\n\nCRITICAL TARGETING RULES:\n- ONLY engage with accounts that have 10K+ followers\n- ONLY engage with posts that already have engagement (10+ likes OR 100+ views)\n- Target posts less than 2 hours old from big accounts\n- SKIP small accounts entirely - they provide zero leverage\n\n1. Search Twitter for: sales AI, GTM engineering, revenue intelligence, founder building\n\n2. Find 5-7 posts from BIG accounts (10K-500K followers) with real engagement\n\nTarget accounts like:\n- @codyschneiderxx (GTM/growth)\n- @gregisenberg (startups)\n- @taborniki (sales)\n- @jaborti (AI tools)\n- Sales/AI influencers with real reach\n\n3. For each post, craft a reply that:\n- Adds a specific insight or data point\n- Mentions a personal experience briefly\n- Asks a smart question OR makes a counter-intuitive observation\n- Is NOT generic cheerleading\n- References the product ONLY if genuinely relevant (max 1 in 7)\n\n4. Use browser automation (profile=openclaw) to:\n- Navigate to each post\n- Post the reply\n- Like the original post\n\n5. Log engagements to {{HOME}}/.openclaw/workspace-content/social-media/engagement-log.json\n\nQUALITY OVER QUANTITY. 5 strategic replies on big posts > 50 replies on dead threads.",
+        "timeoutSeconds": 900
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "04a86c4f-30c8-4a09-8afc-7de2b0e290f9",
+      "agentId": "content",
+      "name": "Content Research & Inspiration",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 6 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context. Read {{HOME}}/.openclaw/workspace/skills/viral-content/SKILL.md for content frameworks.\n\nIMPORTANT: Read {{HOME}}/.openclaw/workspace-content/CONTENT-RESEARCH-SYNTHESIS.md \u2014 this contains the algorithm weights, creator frameworks, and engagement benchmarks you should use to evaluate what you find. Key reference: author replies 75x, bookmarks 10x, external links dead since March 2026, constructive contrarian tone wins.\n\nFIRST: Run `python3 {{HOME}}/.openclaw/workspace-content/social-media/callvault-feed.py` to refresh recent call insights from CallVault. This writes recent-call-insights.json for the content generator.\n\nTHEN: Research what's getting attention RIGHT NOW across Twitter/X and LinkedIn.\n\n1. Search for viral posts (last 24-48h) in:\n   - AI automation / AI agents / AI employees (PRIMARY \u2014 40% weight)\n   - Founder building in public / solo founder content\n   - Sales strategy / coaching / consulting business\n   - SaaS disruption / SaaSpocalypse / AI replacing SaaS seats\n\n2. For each viral post found, extract:\n   - The EXACT hook used (first line)\n   - Which framework from CONTENT-RESEARCH-SYNTHESIS.md it maps to (Hormozi, Welsh, Cole, Bush, Koe, Bloom)\n   - Content vehicle type (see SKILL.md 18 content types)\n   - Why it worked: topic? format? timing? emotional trigger? (see CONTENT-RESEARCH-SYNTHESIS.md > Emotional Triggers)\n   - Reply count vs like count (replies = 13.5x algorithm value per research)\n   - Bookmark indicators (frameworks, checklists, data = bookmarkable = 10x signal)\n\n3. Check competitors (BUSINESS.md > Competitors) \u2014 what are they posting? Gaps we can own?\n\n4. Attention-hijacking opportunities: trending topics, viral posts to quote-tweet, news to newsjack\n\n5. Update {{HOME}}/.openclaw/workspace-content/social-media/content-inspiration.json with:\n   - 5-10 post ideas weighted toward AI automation (at least 4 of 10)\n   - For each idea: specific hook template from the 40+ in CONTENT-RESEARCH-SYNTHESIS.md\n   - Which creator framework to apply (PAS, 1-3-1, PPP, Hook-Retain-Reward)\n   - Content vehicle recommendation\n   - Trending angles to hijack\n\nDo NOT update post-queue.json directly \u2014 the Content Generator handles that.",
+        "timeoutSeconds": 600
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "7a0bb5c8-b9d8-4d4b-a78f-178bfbc34530",
+      "agentId": "quick",
+      "name": "Community Call Reminder - Tuesday",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "55 13 * * 2",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Send reminder to WhatsApp group ({{WHATSAPP_GROUP_ID}}) via wacli:\n\nCommunity call starting in 5 minutes!\n\nJoin here: {{COMMUNITY_CALL_LINK}}"
+      },
+      "delivery": {
+        "mode": "announce",
+        "to": "{{OWNER_PHONE}}",
+        "channel": "bluebubbles"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "4a545819-e366-40f5-8276-c78e7be12ef9",
+      "agentId": "main",
+      "name": "Daily System Health Check",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "15 6 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run a daily system health check. Check each of these and compile a report:\n\n1. OPENCLAW: Run `openclaw doctor --fix` to check and auto-fix common issues.\n\n2. DOCKER/NEO4J: Run `docker ps --filter name=neo4j --format '{{.Status}}'` to check if Neo4j is running. If not running, try `docker start neo4j`.\n\n3. DISK SPACE: Run `df -h /` and check if usage is above 85%. If so, flag it.\n\n4. CRON FAILURES: Read {{HOME}}/.openclaw/cron/jobs.json and check for any jobs with consecutiveErrors > 0 or lastStatus = 'error'. List them.\n\n5. MEMORY SYSTEM: Run `sqlite3 {{HOME}}/.openclaw/memory/mem0-vectors.db 'SELECT COUNT(*) FROM vec_items;'` to verify vector DB is accessible. Check Neo4j with `docker exec neo4j cypher-shell -u neo4j -p openclaw-graph-2026 'MATCH (n) RETURN count(n);'`.\n\nDECISION:\n- If ALL checks pass: Log success to {{HOME}}/.openclaw/workspace/health/health-log.json (create dir if needed). Do NOT message {{USER_NAME}}.\n- If ANY check fails: Send alert via iMessage to {{OWNER_PHONE}} with what failed and what was auto-fixed (if anything).\n\nKeep it concise. This runs every day at 6:15am before the main workflow starts.",
+        "timeoutSeconds": 120
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "5d3d9fe4-dce1-468c-9b81-366a5fec91d8",
+      "agentId": "main",
+      "name": "Self-Heal Watchdog",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "3 6,8,10,12,14,16,18,20,22 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Quick self-heal watchdog. Run silently - only alert {{USER_NAME}} if something needed fixing.\n\n1. Check if Neo4j Docker container is running. If stopped, start it: `docker start neo4j`\n2. Check if OpenClaw gateway is responding: `curl -s -o /dev/null -w '%{http_code}' http://localhost:18789/health` \u2014 if not 200, log the issue.\n3. Check disk space on / \u2014 if above 90%, run: `rm -rf {{HOME}}/.openclaw/logs/*.log.gz` to clear old compressed logs.\n4. Check for stale lock files: `find {{HOME}}/.openclaw -name '*.lock' -mmin +60` \u2014 if found, remove them.\n\nRULES:\n- If everything is fine: Do nothing. No message, no log.\n- If something was broken AND fixed: Log to {{HOME}}/.openclaw/workspace/health/heal-log.json with timestamp and what was fixed.\n- If something is broken AND could NOT be fixed: Alert {{USER_NAME}} via iMessage ({{OWNER_PHONE}}).\n\nThis should take under 30 seconds. Be fast.",
+        "timeoutSeconds": 60
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "1784c888-fa84-4e42-9ff2-0237d711befa",
+      "agentId": "bizdev",
+      "name": "Bizdev Inbox Triage",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "10 10,14,17 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context (clients, products, ICP).\n\nTriage the sales-relevant inbox. Read emails via `gog gmail search 'newer_than:4h is:unread' --max 20 --json`.\n\nCategorize each email per AGENTS.md triage protocol:\n- URGENT: Client issues (see BUSINESS.md > Clients), prospect replies, revenue at risk\n- ACTION: Follow-ups, partnership inquiries, meeting requests\n- FYI: Industry newsletters, competitor announcements\n- SKIP: Spam, generic promotions\n\nWrite results to {{HOME}}/.openclaw/workspace-bizdev/inbox/actions.json.\nFor URGENT items, write escalation to {{HOME}}/.openclaw/workspace/_handoff/escalations.json.\nAt 5pm run: compile day's ACTION items into end-of-day summary at {{HOME}}/.openclaw/workspace-bizdev/reports/daily-summary-$(date +%Y-%m-%d).json.",
+        "timeoutSeconds": 300
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "b4519d5e-e919-4623-8599-6ddcf8a9c198",
+      "agentId": "bizdev",
+      "name": "Weekly Competitive Intel",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 19 * * 0",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context (competitors, products).\n\nRun weekly competitive intelligence report.\n\n1. For each primary competitor in BUSINESS.md > Competitors: search for pricing changes, new features, complaints, outages, layoffs. Check review sites (G2, Capterra, Trustpilot via web search), Reddit discussions.\n\n2. For secondary competitors: quick scan for major news only.\n\n3. Compile into {{HOME}}/.openclaw/workspace-bizdev/competitive/weekly-intel.json with:\n   - Executive summary (3-5 bullets)\n   - Per-competitor breakdown: findings, threats, opportunities, ammunition\n   - Market signals\n   - Outreach angles based on competitor weaknesses\n   - Recommended actions with priority\n\n4. If HIGH-PRIORITY finding (competitor outage, price hike, major negative press), write escalation to {{HOME}}/.openclaw/workspace/_handoff/escalations.json.",
+        "timeoutSeconds": 900
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "fd12e569-83e8-44ef-9ac2-5861e9d0685a",
+      "agentId": "bizdev",
+      "name": "Follow-Up Cadence Check",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "20 9 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context.\n\nCheck follow-up cadence for all leads with status 'contacted' in {{HOME}}/.openclaw/workspace-bizdev/leads/.\n\nFor each contacted lead with no response:\n- Day 7: Draft soft follow-up\n- Day 14: Draft value-add follow-up (share case study or resource)\n- Day 21: Draft breakup message\n- Day 30+: Move to 'monitoring' status\n\nWrite any new follow-up drafts to {{HOME}}/.openclaw/workspace-bizdev/outreach/drafts.json.\nUpdate lead statuses in leads.json as needed.\nLog actions to {{HOME}}/.openclaw/workspace-bizdev/memory/$(date +%Y-%m-%d).md.",
+        "timeoutSeconds": 300
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "a080564a-5595-4031-9896-d6941b35ef43",
+      "agentId": "bizdev",
+      "name": "Pipeline Daily Digest",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "10 18 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context.\n\nCompile end-of-day pipeline digest.\n\n1. Read all lead files from {{HOME}}/.openclaw/workspace-bizdev/leads/\n2. Read today's inbox actions from {{HOME}}/.openclaw/workspace-bizdev/inbox/actions.json\n3. Read any pending outreach drafts from {{HOME}}/.openclaw/workspace-bizdev/outreach/drafts.json\n4. Read competitive signals from {{HOME}}/.openclaw/workspace-bizdev/competitive/\n\nCompile into {{HOME}}/.openclaw/workspace-bizdev/reports/daily-summary-$(date +%Y-%m-%d).json:\n- New leads found today (count by score bracket)\n- Hot leads requiring attention (score 8+)\n- Inbox triage summary\n- ACTION items pending response\n- Competitive signals\n- Outreach drafts pending approval\n- Pipeline status changes",
+        "timeoutSeconds": 300
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "545b8d43-94a4-4e47-bb94-9ddd15bf51f1",
+      "agentId": "outreach",
+      "name": "Outreach Queue Processor",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "20 10,13,16 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context. Load the sales-outreach skill for platform methodology and rate limits.\n\nCheck {{HOME}}/.openclaw/workspace-bizdev/outreach/drafts.json for entries with status 'approved'. For each approved draft:\n1. Verify the lead hasn't already responded (check {{HOME}}/.openclaw/workspace-outreach/outreach-log.json)\n2. Verify the draft is <7 days old (check created_date)\n3. Verify you haven't sent to this person in the last 48 hours\n4. Check platform rate limits for today\n5. Execute the send on the correct platform using the appropriate tool\n6. Log the result to {{HOME}}/.openclaw/workspace-outreach/outreach-log.json\n7. Update the draft status to 'sent' with sent_at timestamp\n\nIf any draft seems stale or the lead's status changed, skip it and write an escalation to {{HOME}}/.openclaw/workspace/_handoff/escalations.json.\n\nIf no approved drafts exist, exit cleanly.",
+        "timeoutSeconds": 600
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "2aa0df71-0557-4666-bc0d-1da35465ab82",
+      "agentId": "outreach",
+      "name": "Outreach Response Monitor",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "20 11,14,17,20 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Read BUSINESS.md for business context.\n\nCheck {{HOME}}/.openclaw/workspace-outreach/outreach-log.json for recently sent outreach (last 7 days). For each sent message:\n1. Check the platform for responses (Twitter notifications, Reddit inbox, LinkedIn messages, email inbox)\n2. If a prospect responded, immediately write to {{HOME}}/.openclaw/workspace/_handoff/escalations.json with priority 'high', type 'hot_lead', include the full response text and lead context\n3. Update outreach-log.json with response_detected: true and response_text\n\nProspect engagement is the highest priority signal. {{USER_NAME}} needs to know immediately.\n\nIf no recent sends in outreach-log.json, exit cleanly.",
+        "timeoutSeconds": 600
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "de9c9e2a-07c9-4d2d-9624-7a189434c61a",
+      "agentId": "main",
+      "name": "Git Autosync",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 3600000,
+        "anchorMs": 1771478632196
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run {{HOME}}/.openclaw/workspace/scripts/git-autosync.sh and report results. If it fails, write to {{HOME}}/.openclaw/workspace/_handoff/escalations.json",
+        "timeoutSeconds": 120
+      },
+      "delivery": {
+        "mode": "none",
+        "channel": "last"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "ea6f0ce3-69a6-48c2-8465-2d146f11e5bc",
+      "agentId": "main",
+      "name": "Business Advisory Council",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 2 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute business advisory council analysis. Collect all business data from these sources: {{HOME}}/.openclaw/workspace-bizdev/leads/ (list all recent JSON files and read them), {{HOME}}/.openclaw/workspace-content/social-media/content-log.json, {{HOME}}/.openclaw/workspace-content/social-media/post-queue.json, {{HOME}}/.openclaw/workspace/health/cron-log.db (run: sqlite3 {{HOME}}/.openclaw/workspace/health/cron-log.db \"SELECT job_name, status, timestamp FROM cron_log ORDER BY timestamp DESC LIMIT 50;\" 2>/dev/null), {{HOME}}/.openclaw/workspace/_handoff/escalations.json, {{HOME}}/.openclaw/workspace/memory/ (read the 2 most recent YYYY-MM-DD.md files). Spawn 8 specialist sub-agents in parallel (Revenue Analyst, Content Strategist, Operations Analyst, Competitive Intel, Sales Coach, Risk Assessor, Growth Advisor, Prioritization Expert) \u2014 pass relevant data as context. Wait for all 8 to complete. Run synthesizer: merge findings, remove duplicates, rank top 5 by impact. Save report to {{HOME}}/.openclaw/workspace/health/advisory-council-$(date +%Y-%m-%d).md. Send iMessage summary to {{OWNER_PHONE}} via bluebubbles channel with top 5 recommendations. Fallback model if rate limited: openrouter/moonshotai/kimi-k2.5",
+        "timeoutSeconds": 1800
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "{{OWNER_PHONE}}"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "83dad240-fb22-4cdc-8a92-327863bfe625",
+      "agentId": "main",
+      "name": "Self-Update Monitor",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 21 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Check if there's a new version of OpenClaw available by running: `~/.nvm/versions/node/v24.13.0/bin/openclaw status 2>&1`. Compare to current version. If an update is available, format the changelog as clean one-line bullets and send to {{USER_NAME}} via iMessage ({{OWNER_PHONE}}, channel=bluebubbles). If no update, reply HEARTBEAT_OK.",
+        "timeoutSeconds": 120
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "{{OWNER_PHONE}}"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "0eb9fa92-feb2-4776-90ea-6f7b44fbd649",
+      "agentId": "main",
+      "name": "Nightly Security Review Council",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 3 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute security review. Collect data from: recent git commits (cd {{HOME}}/.openclaw/workspace && git log --oneline -20 2>/dev/null), dashboard log tail (tail -200 {{HOME}}/.openclaw/workspace/dashboard/dashboard.log 2>/dev/null), escalations file ({{HOME}}/.openclaw/workspace/_handoff/escalations.json). Spawn 4 specialist sub-agents in parallel (Offensive Security, Defensive Security, Data Privacy, Operational Realism). Wait for all 4 to complete. Synthesize findings: sort by severity CRITICAL > HIGH > MEDIUM > LOW. Save report to {{HOME}}/.openclaw/workspace/health/security-review-$(date +%Y-%m-%d).md. ONLY IF there are CRITICAL findings: send immediate iMessage alert to {{OWNER_PHONE}} via bluebubbles. Fallback model: openrouter/moonshotai/kimi-k2.5",
+        "timeoutSeconds": 1800
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "{{OWNER_PHONE}}"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "7b51d550-df0c-40b3-87a4-6a61b3068616",
+      "agentId": "main",
+      "name": "Social Media Daily Tracker",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 23 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run the social media tracker: execute python3 {{HOME}}/.openclaw/workspace/scripts/track-social.py 2>&1. This will fetch Twitter data for {{TWITTER_HANDLE}} (using bird CLI or Nitter RSS fallback), store snapshots in {{HOME}}/.openclaw/workspace/health/social-metrics.db, and save a daily summary to {{HOME}}/.openclaw/workspace-content/social-media/daily-stats-YYYY-MM-DD.json (the script generates the correct date). Log the result. If errors occur, write to {{HOME}}/.openclaw/workspace/_handoff/escalations.json.",
+        "timeoutSeconds": 300
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "last"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "40be47c9-2160-4991-a8d8-74da2b09064b",
+      "agentId": "main",
+      "name": "Data Freshness Auditor",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 */6 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Audit data freshness across all sources before any briefing:\n\n1. **TASKS.md**: Check for items >14 days old without updates, completed items not marked, stale dates\n2. **Cron jobs**: Verify actual lastRunAt timestamps vs reported status\n3. **Memory files**: Check memory/YYYY-MM-DD.md for gaps >3 days\n4. **Lead files**: Verify lead files in workspace-bizdev/leads/ are recent (<7 days)\n5. **Escalations**: Check _handoff/escalations.json for stale items (>48h)\n\nReport any stale/mismatched data to _handoff/data-quality-issues.json\nDo NOT include stale data in briefings to {{USER_NAME}}."
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "82710706-7f01-4b3a-a477-6bb6c64486da",
+      "agentId": "main",
+      "name": "Pre-Briefing Data Validation",
+      "enabled": true,
+      "createdAtMs": null,
+      "updatedAtMs": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "25 7 * * *",
+        "tz": "America/New_York"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run before morning briefing at 7:30am. Validate all data sources:\n\n1. Check actual cron job statuses via `cron list` \u2014 note any with lastStatus=error\n2. Verify TASKS.md last updated date \u2014 if >7 days, flag as stale\n3. Check memory files for yesterday \u2014 if missing, gap in coverage\n4. Verify lead surfacer ran in last 24h\n5. Cross-reference: Did reported \"failures\" actually fail? Check lastRunAt vs lastStatus\n\nWrite validation report to {{HOME}}/.openclaw/workspace/_handoff/briefing-validation.json\nIf stale data detected, update briefing to say \"Data may be stale \u2014 checking sources\" instead of reporting potentially wrong info."
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": null,
+        "lastRunAtMs": null,
+        "lastStatus": null,
+        "lastDurationMs": 0,
+        "consecutiveErrors": 0
+      }
+    }
+  ]
+}
