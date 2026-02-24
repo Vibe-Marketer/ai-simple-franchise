@@ -1,0 +1,22 @@
+{
+  "name": "@openclaw/openclaw-composio",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Composio integration layer for OpenClaw — OAuth credential management and tool execution for 1000+ services",
+  "license": "MIT",
+  "keywords": [
+    "openclaw",
+    "plugin",
+    "composio",
+    "oauth",
+    "integrations"
+  ],
+  "dependencies": {
+    "@composio/core": "^0.6.0"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

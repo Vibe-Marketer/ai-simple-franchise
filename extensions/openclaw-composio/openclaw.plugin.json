@@ -1,0 +1,54 @@
+{
+  "id": "openclaw-composio",
+  "kind": "integration",
+  "uiHints": {
+    "apiKey": {
+      "label": "Composio API Key",
+      "sensitive": true,
+      "placeholder": "ak_...",
+      "help": "API key from composio.dev dashboard (or use ${COMPOSIO_API_KEY})"
+    },
+    "defaultEntityId": {
+      "label": "Default Entity ID",
+      "placeholder": "default",
+      "help": "Composio entity ID to use when no channel-specific entity is mapped"
+    },
+    "entityMapPath": {
+      "label": "Entity Map Path",
+      "placeholder": "extensions/openclaw-composio/config/entity-map.json",
+      "advanced": true,
+      "help": "Path to entity-map.json for multi-tenant channel -> Composio entity mapping"
+    },
+    "toolkits": {
+      "label": "Enabled Toolkits",
+      "help": "List of Composio toolkit names to register (e.g. gmail, googlecalendar, slack)"
+    },
+    "toolPrefix": {
+      "label": "Tool Prefix",
+      "placeholder": "composio",
+      "help": "Prefix for registered tool names (e.g. composio_gmail_send_email)"
+    },
+    "connectLinkRedirect": {
+      "label": "Connect Link Redirect URL",
+      "placeholder": "https://composio.dev/redirect",
+      "advanced": true,
+      "help": "Redirect URL after OAuth authorization completes"
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "apiKey": { "type": "string" },
+      "defaultEntityId": { "type": "string" },
+      "entityMapPath": { "type": "string" },
+      "toolkits": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "toolPrefix": { "type": "string" },
+      "connectLinkRedirect": { "type": "string" }
+    },
+    "required": []
+  }
+}
