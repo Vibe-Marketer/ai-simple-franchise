@@ -1,7 +1,7 @@
 {
   "meta": {
     "lastTouchedVersion": "2026.2.12",
-    "lastTouchedAt": "{{DATE}}"
+    "lastTouchedAt": "2026-02-23T21:08:21.802Z"
   },
   "env": {
     "shellEnv": {
@@ -9,7 +9,7 @@
     }
   },
   "wizard": {
-    "lastRunAt": "{{DATE}}",
+    "lastRunAt": "2026-02-23T11:15:37.158Z",
     "lastRunVersion": "2026.2.12",
     "lastRunCommand": "doctor",
     "lastRunMode": "local"
@@ -24,6 +24,18 @@
         "provider": "anthropic",
         "mode": "token"
       },
+      "anthropic:sorenvale": {
+        "provider": "anthropic",
+        "mode": "token"
+      },
+      "google:default": {
+        "provider": "google",
+        "mode": "token"
+      },
+      "openai:default": {
+        "provider": "openai",
+        "mode": "token"
+      },
       "openrouter:default": {
         "provider": "openrouter",
         "mode": "token"
@@ -31,7 +43,14 @@
     },
     "order": {
       "anthropic": [
-        "anthropic:default"
+        "anthropic:default",
+        "anthropic:sorenvale"
+      ],
+      "google": [
+        "google:default"
+      ],
+      "openai": [
+        "openai:default"
       ],
       "openrouter": [
         "openrouter:default"
@@ -41,14 +60,72 @@
       "billingBackoffHours": 1,
       "billingBackoffHoursByProvider": {
         "anthropic": 1,
-        "openrouter": 0.25
+        "google": 0.5,
+        "openrouter": 0.25,
+        "openai": 0.5
       },
       "billingMaxHours": 4,
       "failureWindowHours": 1
     }
   },
   "models": {
-    "providers": {}
+    "providers": {
+      "ollama": {
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "apiKey": "ollama-local",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "llama3.2:3b",
+            "name": "llama3.2:3b",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "glm-4.7-flash:latest",
+            "name": "glm-4.7-flash:latest",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "qwen2.5:7b",
+            "name": "qwen2.5:7b",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 128000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
   },
   "agents": {
     "defaults": {
@@ -57,6 +134,7 @@
         "fallbacks": [
           "anthropic/claude-haiku-4-5",
           "openrouter/moonshotai/kimi-k2.5",
+          "openrouter/minimax/minimax-m2.5",
           "google/gemini-3-flash-preview",
           "openrouter/openai/gpt-4o-mini"
         ]
@@ -69,8 +147,20 @@
         "anthropic/claude-sonnet-4-5": {
           "alias": "sonnet"
         },
+        "google/gemini-2.5-flash-lite": {
+          "alias": "gemini-lite"
+        },
         "google/gemini-3-flash-preview": {
           "alias": "gemini-flash"
+        },
+        "openai/gpt-5-nano": {
+          "alias": "GPT"
+        },
+        "openrouter/minimax/minimax-m2.5": {
+          "alias": "minimax"
+        },
+        "openrouter/moonshotai/kimi-k2": {
+          "alias": "kimi-k2"
         },
         "openrouter/moonshotai/kimi-k2.5": {
           "alias": "kimi"
@@ -78,12 +168,18 @@
         "openrouter/openai/gpt-4o-mini": {
           "alias": "gpt4o-mini"
         },
+        "openrouter/openai/gpt-5-nano": {
+          "alias": "or-gpt-nano"
+        },
         "openrouter/google/gemini-2.5-flash-lite": {
-          "alias": "gemini-lite"
+          "alias": "or-gemini-lite"
+        },
+        "openrouter/deepseek/deepseek-chat-v3-0324": {
+          "alias": "deepseek"
         }
       },
       "workspace": "{{HOME}}/.openclaw/workspace",
-      "skipBootstrap": false,
+      "skipBootstrap": true,
       "contextPruning": {
         "mode": "cache-ttl",
         "ttl": "1h"
@@ -103,6 +199,7 @@
         "model": {
           "primary": "anthropic/claude-haiku-4-5",
           "fallbacks": [
+            "openrouter/minimax/minimax-m2.5",
             "openrouter/moonshotai/kimi-k2.5",
             "google/gemini-2.5-flash-lite",
             "openrouter/openai/gpt-4o-mini"
@@ -114,13 +211,14 @@
       {
         "id": "main",
         "default": true,
-        "name": "{{CLIENT_NAME}}",
+        "name": "Soren Vale",
         "workspace": "{{HOME}}/.openclaw/workspace",
         "model": {
           "primary": "anthropic/claude-sonnet-4-5",
           "fallbacks": [
             "anthropic/claude-haiku-4-5",
             "openrouter/moonshotai/kimi-k2.5",
+            "openrouter/minimax/minimax-m2.5",
             "google/gemini-3-flash-preview",
             "openrouter/openai/gpt-4o-mini"
           ]
@@ -137,6 +235,7 @@
           "model": {
             "primary": "anthropic/claude-haiku-4-5",
             "fallbacks": [
+              "openrouter/minimax/minimax-m2.5",
               "openrouter/moonshotai/kimi-k2.5",
               "google/gemini-2.5-flash-lite",
               "openrouter/openai/gpt-4o-mini"
@@ -157,6 +256,7 @@
           "fallbacks": [
             "anthropic/claude-haiku-4-5",
             "openrouter/moonshotai/kimi-k2.5",
+            "openrouter/minimax/minimax-m2.5",
             "google/gemini-3-flash-preview",
             "openrouter/openai/gpt-4o-mini"
           ]
@@ -165,6 +265,7 @@
           "model": {
             "primary": "anthropic/claude-haiku-4-5",
             "fallbacks": [
+              "openrouter/minimax/minimax-m2.5",
               "openrouter/moonshotai/kimi-k2.5",
               "google/gemini-2.5-flash-lite"
             ]
@@ -186,6 +287,7 @@
           "fallbacks": [
             "anthropic/claude-haiku-4-5",
             "openrouter/moonshotai/kimi-k2.5",
+            "openrouter/minimax/minimax-m2.5",
             "google/gemini-3-flash-preview",
             "openrouter/openai/gpt-4o-mini"
           ]
@@ -194,6 +296,7 @@
           "model": {
             "primary": "anthropic/claude-haiku-4-5",
             "fallbacks": [
+              "openrouter/minimax/minimax-m2.5",
               "openrouter/moonshotai/kimi-k2.5",
               "google/gemini-2.5-flash-lite"
             ]
@@ -216,6 +319,7 @@
             "anthropic/claude-sonnet-4-5",
             "anthropic/claude-haiku-4-5",
             "openrouter/moonshotai/kimi-k2.5",
+            "openrouter/minimax/minimax-m2.5",
             "google/gemini-3-flash-preview"
           ]
         },
@@ -224,6 +328,7 @@
             "primary": "anthropic/claude-sonnet-4-5",
             "fallbacks": [
               "anthropic/claude-haiku-4-5",
+              "openrouter/minimax/minimax-m2.5",
               "openrouter/moonshotai/kimi-k2.5",
               "google/gemini-2.5-flash-lite"
             ]
@@ -244,7 +349,9 @@
           "primary": "anthropic/claude-haiku-4-5",
           "fallbacks": [
             "openrouter/moonshotai/kimi-k2.5",
+            "openrouter/minimax/minimax-m2.5",
             "google/gemini-2.5-flash-lite",
+            "openai/gpt-5-nano",
             "openrouter/openai/gpt-4o-mini"
           ]
         },
@@ -266,6 +373,7 @@
         "model": {
           "primary": "anthropic/claude-haiku-4-5",
           "fallbacks": [
+            "openrouter/minimax/minimax-m2.5",
             "openrouter/moonshotai/kimi-k2.5",
             "google/gemini-2.5-flash-lite",
             "openrouter/openai/gpt-4o-mini"
@@ -288,6 +396,7 @@
           "fallbacks": [
             "anthropic/claude-haiku-4-5",
             "openrouter/moonshotai/kimi-k2.5",
+            "openrouter/minimax/minimax-m2.5",
             "google/gemini-3-flash-preview",
             "openrouter/openai/gpt-4o-mini"
           ]
@@ -296,6 +405,7 @@
           "model": {
             "primary": "anthropic/claude-haiku-4-5",
             "fallbacks": [
+              "openrouter/minimax/minimax-m2.5",
               "openrouter/moonshotai/kimi-k2.5",
               "google/gemini-2.5-flash-lite"
             ]
@@ -305,6 +415,17 @@
           "profile": "full",
           "deny": []
         }
+      },
+      {
+        "id": "mc-gateway-12184005-1a44-4b57-aca0-86ac9aa36d3e",
+        "name": "Soren Gateway (Local) Gateway Agent",
+        "workspace": "{{HOME}}/.openclaw/workspace/workspace-gateway-12184005-1a44-4b57-aca0-86ac9aa36d3e",
+        "agentDir": "{{HOME}}/.openclaw/agents/mc-gateway-12184005-1a44-4b57-aca0-86ac9aa36d3e/agent",
+        "heartbeat": {
+          "every": "10m",
+          "includeReasoning": false,
+          "target": "last"
+        }
       }
     ]
   },
@@ -312,7 +433,7 @@
     "web": {
       "search": {
         "enabled": true,
-        "apiKey": "{{BRAVE_SEARCH_API_KEY}}"
+        "apiKey": "{{BLUEBUBBLES_API_KEY}}"
       },
       "fetch": {
         "enabled": true
@@ -340,7 +461,15 @@
     }
   ],
   "messages": {
-    "ackReactionScope": "group-mentions"
+    "ackReactionScope": "group-mentions",
+    "tts": {
+      "auto": "off",
+      "provider": "elevenlabs",
+      "elevenlabs": {
+        "apiKey": "{{RESEND_API_KEY}}",
+        "voiceId": "IKne3meq5aSn9XLyUdCD"
+      }
+    }
   },
   "commands": {
     "native": "auto",
@@ -359,19 +488,24 @@
       }
     },
     "whatsapp": {
-      "enabled": true,
       "sendReadReceipts": true,
       "dmPolicy": "allowlist",
-      "allowFrom": [],
+      "allowFrom": [
+        "+13153358779"
+      ],
       "groupPolicy": "allowlist",
       "mediaMaxMb": 50,
-      "groups": {},
+      "groups": {
+        "120363400527703497@g.us": {
+          "requireMention": false
+        }
+      },
       "debounceMs": 0
     },
     "telegram": {
       "enabled": true,
       "dmPolicy": "pairing",
-      "botToken": "{{TELEGRAM_BOT_TOKEN}}",
+      "botToken": "8404756389:AAF2pTrWsMoUyxACKcqOwYrxD_hUizaMZBQ",
       "groupPolicy": "disabled",
       "streamMode": "partial",
       "mediaMaxMb": 50,
@@ -387,8 +521,14 @@
       "password": "{{BLUEBUBBLES_PASSWORD}}",
       "webhookPath": "/bluebubbles-webhook",
       "dmPolicy": "allowlist",
-      "allowFrom": [],
-      "groupAllowFrom": [],
+      "allowFrom": [
+        "+13153358779",
+        "+13157317427"
+      ],
+      "groupAllowFrom": [
+        "+13153358779",
+        "+13157317427"
+      ],
       "groupPolicy": "allowlist",
       "sendReadReceipts": true,
       "actions": {
@@ -404,13 +544,16 @@
       }
     }
   },
+  "talk": {
+    "apiKey": "{{RESEND_API_KEY}}"
+  },
   "gateway": {
     "port": 18789,
     "mode": "local",
     "bind": "loopback",
     "controlUi": {
       "allowedOrigins": [
-        "http://localhost:18789"
+        "http://host.docker.internal:18789"
       ],
       "allowInsecureAuth": true,
       "dangerouslyDisableDeviceAuth": true
@@ -443,7 +586,39 @@
     "install": {
       "nodeManager": "npm"
     },
-    "entries": {}
+    "entries": {
+      "clawdtalk-client": {
+        "enabled": false
+      },
+      "goplaces": {
+        "apiKey": "{{GOOGLE_API_KEY}}"
+      },
+      "local-places": {
+        "apiKey": "{{GOOGLE_API_KEY}}"
+      },
+      "model-usage": {
+        "enabled": false
+      },
+      "nano-banana-pro": {
+        "apiKey": "{{GOOGLE_GEMINI_API_KEY}}"
+      },
+      "openai-image-gen": {
+        "apiKey": "{{OPENAI_API_KEY}}"
+      },
+      "openai-whisper-api": {
+        "apiKey": "{{OPENAI_API_KEY}}"
+      },
+      "sag": {
+        "apiKey": "{{RESEND_API_KEY}}",
+        "env": {
+          "ELEVENLABS_VOICE_ID": "IKne3meq5aSn9XLyUdCD"
+        }
+      },
+      "youtube-full": {
+        "enabled": true,
+        "apiKey": "{{YOUTUBE_API_KEY}}"
+      }
+    }
   },
   "plugins": {
     "slots": {
@@ -452,6 +627,12 @@
     "entries": {
       "bluebubbles": {
         "enabled": true
+      },
+      "memory-core": {
+        "enabled": false
+      },
+      "memory-lancedb": {
+        "enabled": false
       },
       "openclaw-mem0": {
         "enabled": true,
@@ -495,7 +676,7 @@
               "config": {
                 "url": "bolt://localhost:7687",
                 "username": "neo4j",
-                "password": "openclaw-graph-2026"
+                "password": "{{NEO4J_PASSWORD}}"
               },
               "customPrompt": "Focus on extracting business entities and relationships: people (clients, collaborators, contacts), companies/organizations, projects/products, deals/contracts, payments, meetings, and introductions. Capture relationship types like: works_with, client_of, introduced_by, owes_payment, collaborates_on, founded, manages, scheduled_with."
             }
@@ -508,7 +689,7 @@
             "retentionDays": 365,
             "maxChunkChars": 4000
           },
-          "customPrompt": "You are a business intelligence memory system. Extract distinct, factual statements from conversations. Focus on:\n\n1. People & Relationships: Names, roles, companies, how they're connected, contact details, communication preferences.\n2. Deals & Contracts: Client names, project scope, payment amounts, deadlines, deliverables, payment status (paid/owed/overdue).\n3. Business Commitments: Promises made, follow-ups needed, next steps agreed upon, meeting outcomes.\n4. Project Status: Current state of projects, blockers, milestones, launch dates, technical decisions.\n5. Financial Details: Revenue, costs, pricing, invoices, receivables, payment terms.\n6. Preferences & Decisions: Strategic choices, tool preferences, workflow decisions, lessons learned.\n7. Scheduled Events: Meetings, calls, deadlines, recurring commitments.\n\nReturn your response as JSON with a 'facts' key containing an array of strings. Each fact should be a standalone statement that would be useful months later. Prefer specific details (names, numbers, dates) over vague summaries. Skip pleasantries, status acknowledgments, and internal agent operations.",
+          "customPrompt": "You are a business intelligence memory system for an entrepreneur and AI agent operator. Extract distinct, factual statements from conversations. Focus on:\n\n1. People & Relationships: Names, roles, companies, how they're connected, contact details, communication preferences.\n2. Deals & Contracts: Client names, project scope, payment amounts, deadlines, deliverables, payment status (paid/owed/overdue).\n3. Business Commitments: Promises made, follow-ups needed, next steps agreed upon, meeting outcomes.\n4. Project Status: Current state of projects, blockers, milestones, launch dates, technical decisions.\n5. Financial Details: Revenue, costs, pricing, invoices, receivables, payment terms.\n6. Preferences & Decisions: Strategic choices, tool preferences, workflow decisions, lessons learned.\n7. Scheduled Events: Meetings, calls, deadlines, recurring commitments.\n\nReturn your response as JSON with a 'facts' key containing an array of strings. Each fact should be a standalone statement that would be useful months later. Prefer specific details (names, numbers, dates) over vague summaries. Skip pleasantries, status acknowledgments, and internal agent operations.",
           "searchThreshold": 0.5,
           "topK": 5,
           "userId": "{{CLIENT_NAME}}"
@@ -538,14 +719,14 @@
         "spec": "@openclaw/openclaw-composio",
         "installPath": "{{HOME}}/.openclaw/extensions/openclaw-composio",
         "version": "0.1.0",
-        "installedAt": "{{DATE}}"
+        "installedAt": "2026-02-23T23:00:00.000Z"
       },
       "openclaw-mem0": {
         "source": "npm",
         "spec": "@mem0/openclaw-mem0",
         "installPath": "{{HOME}}/.openclaw/extensions/openclaw-mem0",
         "version": "0.1.0",
-        "installedAt": "{{DATE}}"
+        "installedAt": "2026-02-11T22:08:15.885Z"
       }
     }
   }
