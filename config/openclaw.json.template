@@ -1,7 +1,7 @@
 {
   "meta": {
     "lastTouchedVersion": "2026.2.12",
-    "lastTouchedAt": "{{INSTALL_DATE}}"
+    "lastTouchedAt": "{{DATE}}"
   },
   "env": {
     "shellEnv": {
@@ -9,7 +9,7 @@
     }
   },
   "wizard": {
-    "lastRunAt": "{{INSTALL_DATE}}",
+    "lastRunAt": "{{DATE}}",
     "lastRunVersion": "2026.2.12",
     "lastRunCommand": "doctor",
     "lastRunMode": "local"
@@ -511,7 +511,7 @@
           "customPrompt": "You are a business intelligence memory system. Extract distinct, factual statements from conversations. Focus on:\n\n1. People & Relationships: Names, roles, companies, how they're connected, contact details, communication preferences.\n2. Deals & Contracts: Client names, project scope, payment amounts, deadlines, deliverables, payment status (paid/owed/overdue).\n3. Business Commitments: Promises made, follow-ups needed, next steps agreed upon, meeting outcomes.\n4. Project Status: Current state of projects, blockers, milestones, launch dates, technical decisions.\n5. Financial Details: Revenue, costs, pricing, invoices, receivables, payment terms.\n6. Preferences & Decisions: Strategic choices, tool preferences, workflow decisions, lessons learned.\n7. Scheduled Events: Meetings, calls, deadlines, recurring commitments.\n\nReturn your response as JSON with a 'facts' key containing an array of strings. Each fact should be a standalone statement that would be useful months later. Prefer specific details (names, numbers, dates) over vague summaries. Skip pleasantries, status acknowledgments, and internal agent operations.",
           "searchThreshold": 0.5,
           "topK": 5,
-          "userId": "{{CLIENT_ID}}"
+          "userId": "{{CLIENT_NAME}}"
         }
       },
       "telegram": {
@@ -524,7 +524,7 @@
         "enabled": true,
         "config": {
           "apiKey": "{{COMPOSIO_API_KEY}}",
-          "defaultEntityId": "{{CLIENT_ID}}",
+          "defaultEntityId": "{{CLIENT_NAME}}",
           "entityMapPath": "extensions/openclaw-composio/config/entity-map.json",
           "toolkits": ["gmail", "googlecalendar", "slack", "notion", "github"],
           "toolPrefix": "composio",
@@ -534,18 +534,18 @@
     },
     "installs": {
       "openclaw-composio": {
-        "source": "local",
+        "source": "npm",
         "spec": "@openclaw/openclaw-composio",
         "installPath": "{{HOME}}/.openclaw/extensions/openclaw-composio",
         "version": "0.1.0",
-        "installedAt": "{{INSTALL_DATE}}"
+        "installedAt": "{{DATE}}"
       },
       "openclaw-mem0": {
         "source": "npm",
         "spec": "@mem0/openclaw-mem0",
         "installPath": "{{HOME}}/.openclaw/extensions/openclaw-mem0",
         "version": "0.1.0",
-        "installedAt": "{{INSTALL_DATE}}"
+        "installedAt": "{{DATE}}"
       }
     }
   }
