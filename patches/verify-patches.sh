@@ -82,15 +82,39 @@ if [ -n "$OPENCLAW_BIN" ]; then
 
   if [ -d "$OPENCLAW_DIR" ]; then
     FOUND=0
+    BROKEN=0
     TOTAL=0
     for file in "$OPENCLAW_DIR"/agent-scope-*.js; do
       [ -f "$file" ] || continue
+      [[ "$file" == *.orig ]] && continue
+      # Only count files that have the entries array
+      grep -q 'name: DEFAULT_BOOTSTRAP_FILENAME' "$file" 2>/dev/null || continue
       TOTAL=$((TOTAL + 1))
-      if grep -q 'BUSINESS.md' "$file" 2>/dev/null; then
+      if grep -q 'name: "BUSINESS.md"' "$file" 2>/dev/null; then
         FOUND=$((FOUND + 1))
       fi
+      # Detect broken const declaration patch
+      if grep -q '"BOOTSTRAP.md","BUSINESS.md"' "$file" 2>/dev/null; then
+        BROKEN=$((BROKEN + 1))
+      fi
     done
-    if [ $FOUND -gt 0 ]; then
+    # Also check plugin-sdk
+    for file in "$OPENCLAW_DIR"/plugin-sdk/agent-scope-*.js; do
+      [ -f "$file" ] || continue
+      [[ "$file" == *.orig ]] && continue
+      grep -q 'name: DEFAULT_BOOTSTRAP_FILENAME' "$file" 2>/dev/null || continue
+      TOTAL=$((TOTAL + 1))
+      if grep -q 'name: "BUSINESS.md"' "$file" 2>/dev/null; then
+        FOUND=$((FOUND + 1))
+      fi
+      if grep -q '"BOOTSTRAP.md","BUSINESS.md"' "$file" 2>/dev/null; then
+        BROKEN=$((BROKEN + 1))
+      fi
+    done
+    if [ $BROKEN -gt 0 ]; then
+      echo -e "  ${R}✗${NC} BUSINESS.md injection — BROKEN const declaration in $BROKEN files (re-run apply-openclaw-patches.sh)"
+      FAIL=$((FAIL + 1))
+    elif [ $FOUND -gt 0 ]; then
       echo -e "  ${G}✓${NC} BUSINESS.md injection ($FOUND of $TOTAL agent-scope files patched)"
       PASS=$((PASS + 1))
     else
